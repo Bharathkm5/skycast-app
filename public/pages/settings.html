@@ -1,0 +1,192 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SkyCast — Settings</title><link rel="stylesheet" href="../css/global.css"/>
+<style>
+.page-title{font-family:var(--fd);font-size:2rem;font-weight:800}.page-sub{color:var(--muted);font-size:.9rem;margin-bottom:2rem}
+.settings-layout{display:grid;grid-template-columns:210px 1fr;gap:1.5rem;align-items:start}
+.settings-nav{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:.5rem;backdrop-filter:blur(24px);position:sticky;top:calc(var(--nav-h) + 2rem)}
+.sn-btn{display:flex;align-items:center;gap:.6rem;padding:.6rem .9rem;border-radius:8px;font-size:.875rem;font-weight:500;color:var(--muted);cursor:pointer;border:none;background:none;font-family:var(--fb);width:100%;text-align:left;transition:var(--trans)}
+.sn-btn:hover{background:var(--glass);color:var(--text)}.sn-btn.active{background:rgba(56,189,248,.1);color:var(--accent)}
+.sec{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:1.75rem;backdrop-filter:blur(24px);margin-bottom:1rem;display:none}
+.sec.on{display:block}
+.sec-title{font-family:var(--fd);font-weight:700;font-size:1.05rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem}
+.srow{display:flex;align-items:center;justify-content:space-between;padding:.85rem 0;border-bottom:1px solid rgba(255,255,255,.05);gap:1rem}
+.srow:last-child{border-bottom:none;padding-bottom:0}
+.srow-label{font-size:.9rem;font-weight:500}.srow-desc{font-size:.75rem;color:var(--muted);margin-top:.15rem}
+.rg{display:flex;gap:.4rem;flex-wrap:wrap}
+.rb{background:var(--glass);border:1px solid var(--glass-border);border-radius:8px;padding:.4rem .9rem;font-size:.85rem;font-weight:500;cursor:pointer;transition:var(--trans);color:var(--muted);font-family:var(--fb)}
+.rb:hover{background:var(--glass-hover);color:var(--text)}.rb.active{background:rgba(56,189,248,.12);border-color:var(--accent);color:var(--accent)}
+.api-wrap{position:relative;margin-bottom:.75rem}
+.api-input{width:100%;background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:.7rem 3rem .7rem 1rem;color:var(--text);font-family:var(--fm);font-size:.82rem;outline:none;transition:var(--trans)}
+.api-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-g)}
+.api-input.valid{border-color:var(--success)}.api-input.invalid{border-color:var(--danger)}
+.api-eye{position:absolute;right:.75rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem;transition:var(--trans)}
+.api-eye:hover{color:var(--text)}
+.saved-city-item{display:flex;align-items:center;gap:.75rem;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:.75rem 1rem;margin-bottom:.5rem}
+.sc-name{flex:1;font-size:.875rem;font-weight:500}.sc-coords{font-family:var(--fm);font-size:.7rem;color:var(--faint)}
+.sc-del{background:none;border:none;color:var(--muted);cursor:pointer;padding:.2rem;border-radius:4px;transition:var(--trans)}
+.sc-del:hover{color:var(--danger);background:rgba(248,113,113,.1)}
+.pav{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:1.6rem;font-weight:800;margin-bottom:1rem}
+.danger-zone{background:rgba(248,113,113,.04);border:1px solid rgba(248,113,113,.2);border-radius:var(--radius);padding:1.75rem;margin-bottom:1rem;display:none}
+.danger-zone.on{display:block}
+.stat-s{font-size:.72rem;color:var(--faint);font-family:var(--fm)}
+.stat-s.synced{color:var(--success)}
+.hi-item{display:flex;align-items:center;gap:.6rem;padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.875rem;color:var(--muted)}
+.hi-item:last-child{border-bottom:none}
+.hi-time{font-family:var(--fm);font-size:.68rem;color:var(--faint);margin-left:auto}
+@media(max-width:768px){.settings-layout{grid-template-columns:1fr}.settings-nav{position:static;display:flex;flex-wrap:wrap;gap:.25rem}.sn-btn{flex:1;min-width:100px;justify-content:center}}
+</style></head><body>
+<canvas id="weather-canvas"></canvas>
+<div class="page-wrap">
+<nav class="nav"><a href="../index.html" class="nav-logo">🌤️ SkyCast</a>
+<ul class="nav-links" id="nl"><li><a href="../index.html">🏠 Dashboard</a></li><li><a href="forecast.html">📅 Forecast</a></li><li><a href="hourly.html">🕐 Hourly</a></li><li><a href="map.html">🗺️ Map</a></li><li><a href="air-quality.html">🌿 Air Quality</a></li><li><a href="alerts.html">⚠️ Alerts</a></li><li><a href="compare.html">⚖️ Compare</a></li><li><a href="settings.html" class="active">⚙️ Settings</a></li></ul>
+<div class="nav-right"><button class="hamburger" onclick="document.getElementById('nl').classList.toggle('mob-open')"><span></span><span></span><span></span></button></div></nav>
+<main class="main">
+  <div class="fade-up" style="margin-bottom:2rem"><div class="page-title">⚙️ Settings</div><div class="page-sub">Manage your SkyCast preferences and account</div></div>
+  <div class="settings-layout">
+    <nav class="settings-nav fade-up a1">
+      <button class="sn-btn active" onclick="showSec('profile')">👤 Profile</button>
+      <button class="sn-btn" onclick="showSec('apikey')">🔑 API Key</button>
+      <button class="sn-btn" onclick="showSec('units')">🌡️ Units</button>
+      <button class="sn-btn" onclick="showSec('location')">📍 Location</button>
+      <button class="sn-btn" onclick="showSec('saved')">🏙️ Saved Cities</button>
+      <button class="sn-btn" onclick="showSec('history')">🕐 History</button>
+      <button class="sn-btn" onclick="showSec('appearance')">🎨 Appearance</button>
+      <button class="sn-btn" onclick="showSec('about')">ℹ️ About</button>
+      <button class="sn-btn" style="color:rgba(248,113,113,.8)" onclick="showSec('danger')">⚠️ Danger</button>
+    </nav>
+    <div>
+      <!-- Profile -->
+      <div class="sec on" id="sec-profile">
+        <div class="sec-title">👤 Profile</div>
+        <div class="pav" id="pav">?</div>
+        <div style="font-size:1.1rem;font-weight:700" id="pname">—</div>
+        <div style="color:var(--muted);font-size:.875rem;margin-top:.2rem" id="pemail">—</div>
+        <div style="margin-top:.6rem;display:flex;align-items:center;gap:.35rem;font-size:.75rem;color:var(--success)"><span style="width:8px;height:8px;border-radius:50%;background:var(--success);display:inline-block;box-shadow:0 0 6px var(--success)"></span> Verified account</div>
+        <div class="divider"></div>
+        <div class="srow"><div><div class="srow-label">Edit Name</div><div class="srow-desc">Update your display name</div></div>
+          <div style="display:flex;gap:.5rem;align-items:center"><input class="form-input" id="edit-name" type="text" style="width:160px" placeholder="Your name"/><button class="btn btn-ghost btn-sm" onclick="updateName()">Save</button></div></div>
+        <div class="srow" style="border:none"><div><div class="srow-label">Sign Out</div><div class="srow-desc">Sign out from this device</div></div><button class="btn btn-ghost btn-sm" onclick="logout()">🚪 Sign Out</button></div>
+      </div>
+      <!-- API Key -->
+      <div class="sec" id="sec-apikey">
+        <div class="sec-title">🔑 OpenWeatherMap API Key</div>
+        <p style="font-size:.82rem;color:var(--muted);margin-bottom:1rem;line-height:1.6">Get a free key at <a href="https://openweathermap.org/api" target="_blank" style="color:var(--accent)">openweathermap.org/api</a>. Stored only in your browser — never sent to any server except OpenWeatherMap.</p>
+        <!-- Input is ALWAYS EMPTY by default. User must paste their key. -->
+        <div class="api-wrap"><input class="api-input" type="password" id="api-input" placeholder="Paste your API key here…" autocomplete="off"/><button class="api-eye" onclick="toggleApiEye()">👁️</button></div>
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-bottom:.75rem">
+          <button class="btn btn-primary btn-sm" onclick="saveApiKey()">💾 Save Key</button>
+          <button class="btn btn-ghost btn-sm" onclick="testApiKey()">🧪 Test Key</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearApiKey()" style="color:var(--danger)">🗑️ Remove</button>
+          <span id="api-status" class="stat-s"></span>
+        </div>
+        <div style="background:rgba(56,189,248,.06);border:1px solid rgba(56,189,248,.15);border-radius:10px;padding:.75rem 1rem;font-size:.78rem;color:var(--muted)">🔒 Your key is stored in browser localStorage only. The input is always empty for security — paste your key each time you want to update it.</div>
+      </div>
+      <!-- Units -->
+      <div class="sec" id="sec-units">
+        <div class="sec-title">🌡️ Units & Display</div>
+        <div class="srow"><div><div class="srow-label">Temperature</div><div class="srow-desc">Celsius or Fahrenheit</div></div>
+          <div class="rg"><button class="rb" id="r-metric" onclick="setUnitPref('metric')">°C Celsius</button><button class="rb" id="r-imperial" onclick="setUnitPref('imperial')">°F Fahrenheit</button></div></div>
+        <div class="srow" style="border:none"><div><div class="srow-label">Wind Speed</div><div class="srow-desc">Follows temperature unit</div></div>
+          <div style="font-family:var(--fm);font-size:.875rem;color:var(--muted)" id="wind-unit-display">—</div></div>
+      </div>
+      <!-- Location -->
+      <div class="sec" id="sec-location">
+        <div class="sec-title">📍 Default Location</div>
+        <div class="srow"><div><div class="srow-label">Current Default</div><div class="srow-desc" id="def-city-show">Not set</div></div><button class="btn btn-ghost btn-sm" onclick="setDefaultCity()">📍 Use Current City</button></div>
+        <div class="srow" style="border:none"><div><div class="srow-label">Auto-detect Location</div><div class="srow-desc">Use GPS when app opens</div></div>
+          <label class="toggle-sw"><input type="checkbox" id="tog-autodetect" onchange="savePref('auto_detect',this.checked)"/><span class="toggle-sl"></span></label></div>
+      </div>
+      <!-- Saved Cities -->
+      <div class="sec" id="sec-saved">
+        <div class="sec-title">🏙️ Saved Cities</div>
+        <div id="saved-list" style="margin-bottom:1rem"></div>
+        <div style="display:flex;gap:.5rem;align-items:center;max-width:320px">
+          <div class="search-wrap" style="flex:1;position:relative"><span class="search-icon">🔍</span><input class="search-input" id="add-city" type="text" placeholder="Add a city…" style="padding-left:2.8rem"/></div>
+        </div>
+      </div>
+      <!-- Search History -->
+      <div class="sec" id="sec-history">
+        <div class="sec-title">🕐 Search History</div>
+        <div id="history-list"><div style="color:var(--muted);font-size:.875rem">Loading…</div></div>
+        <div style="margin-top:1rem"><button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="clearHistory()">🗑️ Clear History</button></div>
+      </div>
+      <!-- Appearance -->
+      <div class="sec" id="sec-appearance">
+        <div class="sec-title">🎨 Appearance</div>
+        <div class="srow"><div><div class="srow-label">Weather Animations</div><div class="srow-desc">Canvas particle effects (rain, snow, stars…)</div></div>
+          <label class="toggle-sw"><input type="checkbox" id="tog-anim" onchange="savePref('animations',this.checked)"/><span class="toggle-sl"></span></label></div>
+        <div class="srow" style="border:none"><div><div class="srow-label">Dynamic Background</div><div class="srow-desc">Background changes with weather</div></div>
+          <label class="toggle-sw"><input type="checkbox" id="tog-bg" onchange="savePref('dynamic_bg',this.checked)"/><span class="toggle-sl"></span></label></div>
+      </div>
+      <!-- About -->
+      <div class="sec" id="sec-about">
+        <div class="sec-title">ℹ️ About SkyCast</div>
+        <div style="display:flex;flex-direction:column;gap:.5rem;font-size:.875rem;color:var(--muted)">
+          <div>📦 Version <strong style="color:var(--text)">2.1.0</strong></div>
+          <div>🌐 Weather <strong style="color:var(--text)">OpenWeatherMap API</strong></div>
+          <div>🗄️ Database <strong style="color:var(--text)">MongoDB + Mongoose</strong></div>
+          <div>📧 Auth <strong style="color:var(--text)">Node.js + Nodemailer OTP</strong></div>
+          <div>🗺️ Maps <strong style="color:var(--text)">Leaflet.js</strong></div>
+          <div>⚡ Admin <strong style="color:var(--text)">5-page admin panel</strong></div>
+          <div>Backend: <span id="backend-status" style="color:var(--muted)">Checking…</span></div>
+        </div>
+        <div class="divider"></div>
+        <p style="font-size:.82rem;color:var(--muted)">All weather data is fetched live. Passwords are bcrypt-hashed (12 rounds). No plain text credentials are ever stored.</p>
+      </div>
+      <!-- Danger -->
+      <div class="danger-zone" id="sec-danger">
+        <div class="sec-title" style="color:var(--danger)">⚠️ Danger Zone</div>
+        <div class="srow" style="border-color:rgba(248,113,113,.1)"><div><div class="srow-label">Remove API Key</div><div class="srow-desc">Clears stored OpenWeatherMap key</div></div><button class="btn btn-danger btn-sm" onclick="clearApiKey()">Remove</button></div>
+        <div class="srow" style="border-color:rgba(248,113,113,.1)"><div><div class="srow-label">Clear Search History</div><div class="srow-desc">Delete all your search records</div></div><button class="btn btn-danger btn-sm" onclick="clearHistory()">Clear</button></div>
+        <div class="srow" style="border:none"><div><div class="srow-label">Sign Out & Clear</div><div class="srow-desc">Removes all local data and signs out</div></div><button class="btn btn-danger btn-sm" onclick="clearAll()">Clear All</button></div>
+      </div>
+    </div>
+  </div>
+</main></div>
+<script src="../js/config.js"></script><script src="../js/api.js"></script><script src="../js/animations.js"></script>
+<script>
+requireAuth();initWeatherCanvas();
+const user=getCurrentUser();
+if(user){const ini=(user.name||'U').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);document.getElementById('pav').textContent=ini;document.getElementById('pname').textContent=user.name;document.getElementById('pemail').textContent=user.email;document.getElementById('edit-name').value=user.name;}
+
+function showSec(key){
+  const map={profile:'sec-profile',apikey:'sec-apikey',units:'sec-units',location:'sec-location',saved:'sec-saved',history:'sec-history',appearance:'sec-appearance',about:'sec-about',danger:'sec-danger'};
+  document.querySelectorAll('.sec,.danger-zone').forEach(e=>e.classList.remove('on'));
+  const el=document.getElementById(map[key]);if(el){el.classList.add('on');el.scrollIntoView({behavior:'smooth',block:'start'});}
+  document.querySelectorAll('.sn-btn').forEach(b=>b.classList.toggle('active',b.textContent.toLowerCase().includes(key)||(key==='profile'&&b.textContent.includes('Profile'))));
+  if(key==='units')initUnits();if(key==='saved')renderSaved();if(key==='history')loadHistory();if(key==='appearance')initAppearance();if(key==='about')checkBackend();if(key==='location')initLocation();
+}
+
+function initUnits(){const u=getUnit();document.getElementById('r-metric').classList.toggle('active',u==='metric');document.getElementById('r-imperial').classList.toggle('active',u==='imperial');document.getElementById('wind-unit-display').textContent=getWindUnit();}
+function setUnitPref(u){localStorage.setItem('unit',u);document.getElementById('r-metric').classList.toggle('active',u==='metric');document.getElementById('r-imperial').classList.toggle('active',u==='imperial');document.getElementById('wind-unit-display').textContent=getWindUnit();if(getToken()&&getToken()!=='demo_token')apiCall('/api/auth/profile',{method:'PUT',body:JSON.stringify({unit:u})}).catch(()=>{});showToast('Unit set to '+(u==='metric'?'Celsius':'Fahrenheit'),'success');}
+
+// API Key — ALWAYS EMPTY on load. User must paste their key.
+function toggleApiEye(){const i=document.getElementById('api-input');i.type=i.type==='password'?'text':'password';}
+function saveApiKey(){const k=document.getElementById('api-input').value.trim();if(!k)return showToast('Paste your API key first','warning');if(k.length<20)return showToast('Key looks too short — check it','error');localStorage.setItem('skycast_api_key',k);document.getElementById('api-input').classList.add('valid');document.getElementById('api-input').classList.remove('invalid');document.getElementById('api-status').textContent='✅ Saved';document.getElementById('api-status').className='stat-s synced';showToast('API key saved!','success');}
+async function testApiKey(){const k=document.getElementById('api-input').value.trim()||CONFIG.API_KEY;if(!k)return showToast('Paste a key to test','warning');document.getElementById('api-status').textContent='Testing…';try{const r=await fetch(`https://api.openweathermap.org/data/2.5/weather?q=London&appid=${k}`);if(r.ok){document.getElementById('api-input').classList.add('valid');document.getElementById('api-input').classList.remove('invalid');document.getElementById('api-status').textContent='✅ Valid!';document.getElementById('api-status').className='stat-s synced';showToast('API key is valid! 🎉','success');}else throw new Error();}catch{document.getElementById('api-input').classList.add('invalid');document.getElementById('api-input').classList.remove('valid');document.getElementById('api-status').textContent='❌ Invalid';document.getElementById('api-status').style.color='var(--danger)';showToast('Invalid API key','error');}}
+function clearApiKey(){localStorage.removeItem('skycast_api_key');document.getElementById('api-input').value='';document.getElementById('api-input').classList.remove('valid','invalid');document.getElementById('api-status').textContent='Removed';showToast('API key removed','info');}
+
+function initAppearance(){document.getElementById('tog-anim').checked=localStorage.getItem('skycast_pref_animations')!=='0';document.getElementById('tog-bg').checked=localStorage.getItem('skycast_pref_dynamic_bg')!=='0';}
+function savePref(k,v){localStorage.setItem('skycast_pref_'+k,v?'1':'0');showToast(v?'Enabled':'Disabled','info');}
+
+function initLocation(){const c=JSON.parse(localStorage.getItem('skycast_last')||'null');document.getElementById('def-city-show').textContent=c?c.name+' ('+Number(c.lat).toFixed(2)+', '+Number(c.lon).toFixed(2)+')':'Not set';document.getElementById('tog-autodetect').checked=localStorage.getItem('skycast_pref_auto_detect')==='1';}
+function setDefaultCity(){const c=JSON.parse(localStorage.getItem('skycast_last')||'null');if(!c)return showToast('No city loaded. Visit Dashboard first.','warning');document.getElementById('def-city-show').textContent=c.name;showToast('Default set to '+c.name,'success');}
+
+function getSaved(){return JSON.parse(localStorage.getItem('skycast_saved_cities')||'[]');}
+function setSaved(c){localStorage.setItem('skycast_saved_cities',JSON.stringify(c));}
+function renderSaved(){const cities=getSaved(),el=document.getElementById('saved-list');if(!cities.length){el.innerHTML='<div style="color:var(--muted);font-size:.875rem;margin-bottom:.75rem">No saved cities yet.</div>';return;}el.innerHTML=cities.map((c,i)=>`<div class="saved-city-item"><span>📍</span><div class="sc-name">${c.name}</div><div class="sc-coords">${Number(c.lat).toFixed(2)}, ${Number(c.lon).toFixed(2)}</div><button class="sc-del" onclick="removeCity(${i})">✕</button></div>`).join('');}
+function removeCity(i){const c=getSaved();c.splice(i,1);setSaved(c);renderSaved();showToast('City removed','info');}
+initSearch('add-city',({lat,lon,city,country})=>{WeatherAPI.getCurrent(lat,lon).then(w=>{const cities=getSaved();if(cities.find(c=>c.name.includes(w.name)))return showToast(w.name+' already saved','warning');cities.push({name:w.name+', '+w.sys.country,lat,lon});setSaved(cities);renderSaved();document.getElementById('add-city').value='';showToast(w.name+' saved!','success');}).catch(()=>showToast('Could not find city','error'));});
+
+async function loadHistory(){
+  const el=document.getElementById('history-list');
+  if(getToken()==='demo_token'){el.innerHTML='<div style="color:var(--muted);font-size:.875rem">Search history requires backend login.</div>';return;}
+  try{const h=await apiCall('/api/search/history');if(!h.length){el.innerHTML='<div style="color:var(--muted);font-size:.875rem">No history yet.</div>';return;}el.innerHTML=h.slice(0,20).map(h=>`<div class="hi-item"><span>🔍</span><span>${h.query||h.city||'—'}</span><span class="hi-time">${new Date(h.timestamp).toLocaleDateString()}</span></div>`).join('');}
+  catch{el.innerHTML='<div style="color:var(--muted);font-size:.875rem">Could not load (is backend running?)</div>';}
+}
+async function clearHistory(){if(!confirm('Clear all search history?'))return;try{if(getToken()!=='demo_token')await apiCall('/api/search/history',{method:'DELETE'});document.getElementById('history-list').innerHTML='<div style="color:var(--muted);font-size:.875rem">History cleared.</div>';showToast('History cleared','success');}catch{showToast('Could not clear history','error');}}
+async function updateName(){const n=document.getElementById('edit-name').value.trim();if(!n)return showToast('Enter a name','warning');try{if(getToken()!=='demo_token'){const u=await apiCall('/api/auth/profile',{method:'PUT',body:JSON.stringify({name:n})});setCurrentUser(u);}else{const u=getCurrentUser();u.name=n;setCurrentUser(u);}document.getElementById('pname').textContent=n;showToast('Name updated!','success');}catch(e){showToast(e.message,'error');}}
+async function checkBackend(){const el=document.getElementById('backend-status');try{const d=await fetch(CONFIG.BACKEND_URL+'/api/health').then(r=>r.json());el.textContent='🟢 Online (DB: '+d.db+')';el.style.color='var(--success)';}catch{el.textContent='🔴 Offline — start Node.js server';el.style.color='var(--danger)';}}
+function clearAll(){if(!confirm('Clear all local data and sign out?'))return;localStorage.clear();location.href='../pages/login.html';}
+</script></body></html>

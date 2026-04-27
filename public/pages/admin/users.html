@@ -1,0 +1,115 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SkyCast Admin — Users</title><link rel="stylesheet" href="../../css/global.css"/>
+<style>
+body{background:linear-gradient(145deg,#050d1a 0%,#0a1628 40%,#0f2040 100%)}
+.admin-nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:var(--nav-h);display:flex;align-items:center;padding:0 2rem;background:rgba(5,13,26,.92);backdrop-filter:blur(28px);border-bottom:1px solid rgba(249,115,22,.2)}
+.admin-logo{font-family:var(--fd);font-size:1.3rem;font-weight:800;background:linear-gradient(90deg,#fb923c,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.anl{display:flex;gap:.15rem;margin-left:2rem;list-style:none}.anl a{color:var(--muted);font-size:.875rem;font-weight:500;padding:.38rem .7rem;border-radius:8px;transition:var(--trans);text-decoration:none}
+.anl a:hover{color:var(--text);background:var(--glass)}.anl a.active{color:#fb923c;background:rgba(249,115,22,.1)}
+.admin-badge{background:linear-gradient(90deg,#f97316,#fb923c);color:#000;font-size:.62rem;font-weight:800;padding:.15rem .45rem;border-radius:4px;font-family:var(--fd)}
+.main{padding-top:calc(var(--nav-h) + 2rem);max-width:1400px;margin:0 auto;padding-left:2rem;padding-right:2rem;padding-bottom:4rem}
+.filter-bar{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:1rem 1.25rem;backdrop-filter:blur(24px);margin-bottom:1.25rem}
+.filter-bar .search-wrap{flex:1;min-width:200px;max-width:320px;position:relative}
+.fsel{background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:.6rem 1rem;color:var(--text);font-family:var(--fb);font-size:.875rem;outline:none;cursor:pointer}
+.fsel option{background:#0a1628}
+.table-wrap{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);overflow:hidden;backdrop-filter:blur(24px)}
+.dtable{width:100%;border-collapse:collapse}
+.dtable thead tr{background:rgba(249,115,22,.06);border-bottom:1px solid var(--glass-border2)}
+.dtable th{padding:.9rem 1.1rem;text-align:left;font-family:var(--fd);font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;white-space:nowrap}
+.dtable td{padding:.8rem 1.1rem;font-size:.875rem;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:middle}
+.dtable tr:last-child td{border-bottom:none}.dtable tbody tr{transition:var(--trans)}.dtable tbody tr:hover{background:var(--glass-hover)}
+.uav{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.78rem;flex-shrink:0;font-family:var(--fd)}
+.ui{display:flex;align-items:center;gap:.75rem}.ui-name{font-weight:600;font-size:.875rem}.ui-email{font-size:.72rem;color:var(--muted);font-family:var(--fm)}
+.rb{font-size:.62rem;font-weight:800;padding:.15rem .5rem;border-radius:4px;font-family:var(--fd);text-transform:uppercase}
+.ra{background:rgba(249,115,22,.15);color:#fb923c}.ru{background:rgba(56,189,248,.12);color:var(--accent)}
+.sb{font-size:.68rem;font-weight:600;padding:.18rem .55rem;border-radius:100px}
+.sv{background:rgba(74,222,128,.12);color:var(--success)}.suv{background:rgba(250,204,21,.12);color:var(--warning)}.sbl{background:rgba(248,113,113,.12);color:var(--danger)}
+.ab{background:var(--glass);border:1px solid var(--glass-border);border-radius:6px;padding:.28rem .62rem;font-size:.72rem;font-weight:600;cursor:pointer;font-family:var(--fb);transition:var(--trans);color:var(--muted)}
+.ab:hover{background:var(--glass-hover);color:var(--text)}.ab.view:hover{border-color:var(--accent);color:var(--accent)}.ab.block-btn:hover{border-color:var(--danger);color:var(--danger);background:rgba(248,113,113,.08)}.ab.unblk:hover{border-color:var(--success);color:var(--success);background:rgba(74,222,128,.08)}.ab.del-btn:hover{border-color:var(--danger);color:var(--danger);background:rgba(248,113,113,.1)}.ab.adm-btn:hover{border-color:#fb923c;color:#fb923c;background:rgba(249,115,22,.08)}
+.pag{display:flex;gap:.4rem;align-items:center;justify-content:center;padding:1.25rem}
+.pb{background:var(--glass);border:1px solid var(--glass-border);border-radius:8px;padding:.38rem .8rem;font-size:.85rem;cursor:pointer;font-family:var(--fm);color:var(--muted);transition:var(--trans)}
+.pb:hover{background:var(--glass-hover);color:var(--text)}.pb.active{background:rgba(249,115,22,.15);border-color:#fb923c;color:#fb923c}.pb:disabled{opacity:.35;cursor:default}
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:2000;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-ov.open{display:flex;animation:fadeIn .2s ease}
+.modal{background:#0a1628;border:1px solid var(--glass-border2);border-radius:var(--radius);padding:2rem;max-width:620px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow-l)}
+.mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.mclose{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer}
+.dr{display:flex;gap:.75rem;padding:.65rem 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.875rem}
+.dr:last-child{border-bottom:none}
+.dk{color:var(--muted);min-width:130px;font-weight:500}.dv{color:var(--text);font-family:var(--fm);font-size:.82rem;word-break:break-all}
+.ml{font-size:.8rem;background:rgba(255,255,255,.03);border-radius:8px;padding:.65rem .9rem;margin-bottom:.4rem;border:1px solid rgba(255,255,255,.05)}
+.ml-time{font-family:var(--fm);font-size:.68rem;color:var(--faint)}
+@media(max-width:900px){.anl{display:none}.dtable th:nth-child(n+5),.dtable td:nth-child(n+5){display:none}}
+</style></head><body><div class="page-wrap">
+<nav class="admin-nav"><div class="admin-logo">⚡ SkyCast Admin</div>
+<ul class="anl"><li><a href="dashboard.html">📊 Dashboard</a></li><li><a href="users.html" class="active">👥 Users</a></li><li><a href="searches.html">🔍 Searches</a></li><li><a href="logins.html">🔐 Logins</a></li><li><a href="analytics.html">📈 Analytics</a></li></ul>
+<div style="margin-left:auto;display:flex;align-items:center;gap:1rem"><span class="admin-badge">ADMIN</span><a href="../../index.html" class="btn btn-ghost btn-sm">← App</a><button class="btn btn-ghost btn-sm" onclick="logout()" style="color:var(--danger)">Sign Out</button></div></nav>
+<main class="main">
+  <div class="fade-up" style="margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between"><div><h1 style="font-family:var(--fd);font-size:1.8rem;font-weight:800">👥 User Management</h1><div style="color:var(--muted);font-size:.875rem;margin-top:.25rem" id="sub">Loading…</div></div></div>
+  <div class="filter-bar fade-up a1">
+    <div class="search-wrap"><span class="search-icon">🔍</span><input class="search-input" id="si" type="text" placeholder="Search name or email…" style="padding-left:2.8rem" oninput="debounce()"/></div>
+    <select class="fsel" id="rf" onchange="load()"><option value="">All Roles</option><option value="user">Users</option><option value="admin">Admins</option></select>
+    <select class="fsel" id="sf" onchange="load()"><option value="">All Status</option><option value="verified">Verified</option><option value="unverified">Unverified</option><option value="blocked">Blocked</option></select>
+    <select class="fsel" id="srf" onchange="load()"><option value="-createdAt">Newest</option><option value="createdAt">Oldest</option><option value="-loginCount">Most Active</option></select>
+    <button class="btn btn-ghost btn-sm" onclick="load()">🔄</button>
+  </div>
+  <div class="table-wrap fade-up a2" id="tw"><div class="loading-wrap"><div class="spinner"></div></div></div>
+  <div id="pw"></div>
+</main></div>
+<div class="modal-ov" id="mo" onclick="closeModal(event)"><div class="modal" id="mc"><div class="mh"><div style="font-family:var(--fd);font-weight:700;font-size:1.2rem" id="mt">User Details</div><button class="mclose" onclick="closeModal()">✕</button></div><div id="mb"></div></div></div>
+<script src="../../js/config.js"></script>
+<script>
+const user=getCurrentUser();if(!user||!getToken())location.href='../../pages/login.html';
+let curPage=1,dt;function debounce(){clearTimeout(dt);dt=setTimeout(load,400);}
+async function load(page=1){
+  curPage=page;const s=document.getElementById('si').value.trim(),role=document.getElementById('rf').value,status=document.getElementById('sf').value,sort=document.getElementById('srf').value;
+  document.getElementById('tw').innerHTML='<div class="loading-wrap"><div class="spinner"></div></div>';
+  try{const p=new URLSearchParams({page,limit:20,search:s,role,status,sort});const d=await apiCall('/api/admin/users?'+p);
+    document.getElementById('sub').textContent=d.total.toLocaleString()+' users · Page '+d.page+' of '+d.pages;
+    if(!d.users.length){document.getElementById('tw').innerHTML='<div style="padding:3rem;text-align:center;color:var(--muted)">No users found</div>';document.getElementById('pw').innerHTML='';return;}
+    const rows=d.users.map(u=>{const ini=(u.name||'U').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+      const sb=u.isBlocked?'<span class="sb sbl">Blocked</span>':u.verified?'<span class="sb sv">Verified</span>':'<span class="sb suv">Unverified</span>';
+      return`<tr><td><div class="ui"><div class="uav">${ini}</div><div><div class="ui-name">${esc(u.name)}</div><div class="ui-email">${esc(u.email)}</div></div></div></td>
+        <td><span class="rb r${u.role[0]}">${u.role}</span></td><td>${sb}</td>
+        <td style="font-family:var(--fm);font-size:.75rem;color:var(--muted)">${u.loginCount||0} logins</td>
+        <td style="font-size:.75rem;color:var(--muted)">${u.lastActive?timeAgo(new Date(u.lastActive)):'Never'}</td>
+        <td style="font-size:.72rem;color:var(--faint);font-family:var(--fm)">${new Date(u.createdAt).toLocaleDateString()}</td>
+        <td><div style="display:flex;gap:.3rem;flex-wrap:wrap">
+          <button class="ab view" onclick="viewUser('${u._id}')">👁 View</button>
+          ${u.isBlocked?`<button class="ab unblk" onclick="blockUser('${u._id}',false,'${esc(u.name)}')">✅ Unblock</button>`:`<button class="ab block-btn" onclick="blockUser('${u._id}',true,'${esc(u.name)}')">🚫 Block</button>`}
+          ${u.role==='user'?`<button class="ab adm-btn" onclick="setRole('${u._id}','admin','${esc(u.name)}')">⬆ Admin</button>`:`<button class="ab" onclick="setRole('${u._id}','user','${esc(u.name)}')">⬇ User</button>`}
+          <button class="ab del-btn" onclick="delUser('${u._id}','${esc(u.name)}')">🗑 Del</button>
+        </div></td></tr>`;}).join('');
+    document.getElementById('tw').innerHTML=`<table class="dtable"><thead><tr><th>User</th><th>Role</th><th>Status</th><th>Activity</th><th>Last Active</th><th>Joined</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table>`;
+    let h=`<div class="pag"><button class="pb" onclick="load(${page-1})" ${page<=1?'disabled':''}>←</button>`;
+    const s2=Math.max(1,page-2),e=Math.min(d.pages,page+2);
+    if(s2>1)h+=`<button class="pb" onclick="load(1)">1</button>${s2>2?'<span style="padding:0 .3rem;color:var(--faint)">…</span>':''}`;
+    for(let p2=s2;p2<=e;p2++)h+=`<button class="pb ${p2===page?'active':''}" onclick="load(${p2})">${p2}</button>`;
+    if(e<d.pages)h+=`${e<d.pages-1?'<span style="padding:0 .3rem;color:var(--faint)">…</span>':''}<button class="pb" onclick="load(${d.pages})">${d.pages}</button>`;
+    h+=`<button class="pb" onclick="load(${page+1})" ${page>=d.pages?'disabled':''}>→</button></div>`;
+    document.getElementById('pw').innerHTML=h;
+  }catch(e){document.getElementById('tw').innerHTML='<div class="error-card" style="margin:1rem">⚠️ '+e.message+'</div>';}
+}
+async function viewUser(id){
+  document.getElementById('mb').innerHTML='<div class="loading-wrap"><div class="spinner"></div></div>';document.getElementById('mo').classList.add('open');
+  try{const{user:u,searches,logins}=await apiCall('/api/admin/users/'+id);document.getElementById('mt').textContent='👤 '+u.name;
+    const status=u.isBlocked?'🚫 Blocked':u.verified?'✅ Verified':'⏳ Unverified';
+    document.getElementById('mb').innerHTML=`${[['Name',u.name],['Email',u.email],['Role',u.role.toUpperCase()],['Status',status],['Joined',new Date(u.createdAt).toLocaleString()],['Last Login',u.lastLogin?new Date(u.lastLogin).toLocaleString():'Never'],['Last Active',u.lastActive?timeAgo(new Date(u.lastActive)):'Never'],['Login Count',u.loginCount||0],['Default City',u.defaultCity?.name||'—'],['Unit',u.unit||'metric']].map(([k,v])=>`<div class="dr"><div class="dk">${k}</div><div class="dv">${v}</div></div>`).join('')}
+    <div class="divider"></div><div class="section-title" style="margin-bottom:.75rem">Recent Searches</div>
+    ${searches.length?searches.slice(0,6).map(s=>`<div class="ml">🔍 <strong>${s.city||s.query||'—'}</strong>${s.country?' ('+s.country+')':''}<span class="ml-time" style="float:right">${new Date(s.createdAt).toLocaleString()}</span></div>`).join(''):'<div style="color:var(--muted);font-size:.875rem">No searches yet</div>'}
+    <div class="divider"></div><div class="section-title" style="margin-bottom:.75rem">Login History</div>
+    ${logins.length?logins.slice(0,6).map(l=>`<div class="ml">${{otp_verified:'✅',otp_failed:'❌',logout:'🚪',otp_sent:'📧'}[l.action]||'🔐'} ${l.action}${l.success===false?' <span style="color:var(--danger)">(failed)</span>':''}<span class="ml-time" style="float:right">${new Date(l.createdAt).toLocaleString()}</span></div>`).join(''):'<div style="color:var(--muted);font-size:.875rem">No history</div>'}
+    <div class="divider"></div><div style="display:flex;gap:.5rem;flex-wrap:wrap">
+      ${u.isBlocked?`<button class="btn btn-ghost btn-sm" style="color:var(--success)" onclick="blockUser('${u._id}',false,'${u.name}');closeModal()">✅ Unblock</button>`:`<button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="blockUser('${u._id}',true,'${u.name}');closeModal()">🚫 Block</button>`}
+      <button class="btn btn-danger btn-sm" onclick="delUser('${u._id}','${u.name}');closeModal()">🗑️ Delete Account</button>
+    </div>`;
+  }catch(e){document.getElementById('mb').innerHTML='<div class="error-card">⚠️ '+e.message+'</div>';}
+}
+async function blockUser(id,block,name){if(!confirm((block?'Block':'Unblock')+' '+name+'?'))return;try{await apiCall('/api/admin/users/'+id+'/'+(block?'block':'unblock'),{method:'PUT'});showToast(name+(block?' blocked':' unblocked'),block?'warning':'success');load(curPage);}catch(e){showToast(e.message,'error');}}
+async function setRole(id,role,name){if(!confirm('Make '+name+' a '+role+'?'))return;try{await apiCall('/api/admin/users/'+id+'/role',{method:'PUT',body:JSON.stringify({role})});showToast(name+' is now '+role,'success');load(curPage);}catch(e){showToast(e.message,'error');}}
+async function delUser(id,name){if(!confirm('Permanently delete '+name+'?'))return;if(!confirm('This cannot be undone. Continue?'))return;try{await apiCall('/api/admin/users/'+id,{method:'DELETE'});showToast(name+' deleted','success');load(curPage);}catch(e){showToast(e.message,'error');}}
+function closeModal(e){if(!e||e.target===document.getElementById('mo'))document.getElementById('mo').classList.remove('open');}
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function timeAgo(d){const s=Math.floor((Date.now()-d)/1000);if(s<60)return s+'s ago';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';}
+load();
+</script></body></html>

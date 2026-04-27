@@ -1,0 +1,98 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SkyCast Admin — Dashboard</title><link rel="stylesheet" href="../../css/global.css"/>
+<style>
+body{background:linear-gradient(145deg,#050d1a 0%,#0a1628 40%,#0f2040 100%)}
+.admin-nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:var(--nav-h);display:flex;align-items:center;padding:0 2rem;background:rgba(5,13,26,.92);backdrop-filter:blur(28px);border-bottom:1px solid rgba(249,115,22,.2)}
+.admin-logo{font-family:var(--fd);font-size:1.3rem;font-weight:800;background:linear-gradient(90deg,#fb923c,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.anl{display:flex;gap:.15rem;margin-left:2rem;list-style:none}
+.anl a{color:var(--muted);font-size:.875rem;font-weight:500;padding:.38rem .7rem;border-radius:8px;transition:var(--trans);text-decoration:none;display:flex;align-items:center;gap:.35rem}
+.anl a:hover{color:var(--text);background:var(--glass)}.anl a.active{color:#fb923c;background:rgba(249,115,22,.1)}
+.admin-badge{background:linear-gradient(90deg,#f97316,#fb923c);color:#000;font-size:.62rem;font-weight:800;padding:.15rem .45rem;border-radius:4px;font-family:var(--fd)}
+.main{padding-top:calc(var(--nav-h) + 2rem);max-width:1400px;margin:0 auto;padding-left:2rem;padding-right:2rem;padding-bottom:4rem}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem}
+.kpi{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:1.4rem 1.5rem;backdrop-filter:blur(24px);transition:var(--trans);position:relative;overflow:hidden}
+.kpi::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;border-radius:0 0 var(--radius) var(--radius)}
+.kpi.blue::after{background:var(--accent)}.kpi.green::after{background:var(--success)}.kpi.orange::after{background:var(--accent3)}.kpi.purple::after{background:var(--accent2)}.kpi.red::after{background:var(--danger)}.kpi.yellow::after{background:var(--warning)}
+.kpi:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.kpi-icon{font-size:1.5rem;margin-bottom:.55rem}.kpi-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;font-family:var(--fd)}.kpi-val{font-family:var(--fm);font-size:1.9rem;font-weight:700;line-height:1.1;margin-top:.2rem}.kpi-sub{font-size:.72rem;color:var(--muted);margin-top:.3rem}.kpi-delta{font-size:.72rem;color:var(--success);margin-top:.2rem}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem}
+.chart-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:1.5rem;backdrop-filter:blur(24px)}
+.chart-title{font-family:var(--fd);font-weight:700;font-size:.9rem;margin-bottom:1rem;color:var(--muted);display:flex;align-items:center;gap:.5rem}
+.bottom-grid{display:grid;grid-template-columns:1fr 340px;gap:1.25rem}
+.feed-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:1.5rem;backdrop-filter:blur(24px);max-height:420px;overflow-y:auto}
+.fi{display:flex;align-items:flex-start;gap:.75rem;padding:.65rem 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.fi:last-child{border-bottom:none}
+.fdot{width:8px;height:8px;border-radius:50%;margin-top:.35rem;flex-shrink:0}
+.ftext{flex:1;font-size:.85rem;color:var(--muted);line-height:1.5}.ftext strong{color:var(--text)}
+.ftime{font-size:.7rem;color:var(--faint);font-family:var(--fm);white-space:nowrap}
+.mini-table{width:100%;border-collapse:collapse}
+.mini-table th{font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);font-family:var(--fd);font-weight:700;padding:.5rem .75rem;text-align:left;border-bottom:1px solid var(--glass-border)}
+.mini-table td{padding:.6rem .75rem;font-size:.85rem;border-bottom:1px solid rgba(255,255,255,.03)}
+.mini-table tr:last-child td{border-bottom:none}
+.pulse-dot{width:10px;height:10px;border-radius:50%;background:var(--success);display:inline-block;box-shadow:0 0 0 0 rgba(74,222,128,.4);animation:pulse-r 1.5s ease-out infinite}
+@keyframes pulse-r{0%{box-shadow:0 0 0 0 rgba(74,222,128,.4)}70%{box-shadow:0 0 0 10px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
+@media(max-width:1024px){.chart-grid,.bottom-grid{grid-template-columns:1fr}}
+@media(max-width:900px){.anl{display:none}}
+</style></head><body><div class="page-wrap">
+<nav class="admin-nav"><div class="admin-logo">⚡ SkyCast Admin</div>
+<ul class="anl"><li><a href="dashboard.html" class="active">📊 Dashboard</a></li><li><a href="users.html">👥 Users</a></li><li><a href="searches.html">🔍 Searches</a></li><li><a href="logins.html">🔐 Logins</a></li><li><a href="analytics.html">📈 Analytics</a></li></ul>
+<div style="margin-left:auto;display:flex;align-items:center;gap:1rem"><span class="admin-badge">ADMIN</span><div style="display:flex;align-items:center;gap:.4rem;font-size:.82rem;color:var(--muted)"><span class="pulse-dot"></span><span id="active-count">— active</span></div><a href="../../index.html" class="btn btn-ghost btn-sm">← App</a><button class="btn btn-ghost btn-sm" onclick="logout()" style="color:var(--danger)">Sign Out</button></div></nav>
+<main class="main">
+  <div class="fade-up" style="margin-bottom:2rem;display:flex;align-items:center;justify-content:space-between"><div><h1 style="font-family:var(--fd);font-size:1.8rem;font-weight:800">📊 Admin Dashboard</h1><div style="color:var(--muted);font-size:.875rem;margin-top:.25rem">Welcome, <strong id="admin-name" style="color:var(--text)">Admin</strong> · <span id="last-refresh" style="font-family:var(--fm);font-size:.75rem">—</span></div></div><button class="btn btn-ghost btn-sm" onclick="loadStats()">🔄 Refresh</button></div>
+  <div class="kpi-grid" id="kpi-grid"><div class="loading-wrap" style="grid-column:1/-1"><div class="spinner"></div></div></div>
+  <div class="chart-grid fade-up a2">
+    <div class="chart-card"><div class="chart-title">📈 New Registrations (7 days)</div><canvas id="reg-chart" height="200"></canvas></div>
+    <div class="chart-card"><div class="chart-title">🔍 Searches (7 days)</div><canvas id="search-chart" height="200"></canvas></div>
+  </div>
+  <div class="bottom-grid">
+    <div><div class="section-title" style="margin-bottom:.75rem">⚡ Live Activity Feed</div><div class="feed-card" id="feed"><div class="loading-wrap"><div class="spinner"></div></div></div></div>
+    <div><div class="section-title" style="margin-bottom:.75rem">🌍 Top Cities</div><div class="chart-card" style="padding:1rem"><table class="mini-table" id="cities-table"><thead><tr><th>#</th><th>City</th><th>Searches</th></tr></thead><tbody><tr><td colspan="3" style="text-align:center;color:var(--muted);padding:1.5rem">Loading…</td></tr></tbody></table></div></div>
+  </div>
+</main></div>
+<script src="../../js/config.js"></script>
+<script>
+const user=getCurrentUser();
+if(!user||!getToken()){location.href='../../pages/login.html';}
+else{document.getElementById('admin-name').textContent=user.name||'Admin';
+  if(user.role!=='admin'){apiCall('/api/auth/me').then(me=>{if(me.role!=='admin'){alert('Admin access required');location.href='../../index.html';}else{setCurrentUser(me);loadStats();}}).catch(()=>location.href='../../pages/login.html');}
+  else loadStats();}
+async function loadStats(){
+  document.getElementById('last-refresh').textContent='Refreshed '+new Date().toLocaleTimeString();
+  try{
+    const d=await apiCall('/api/admin/stats');
+    document.getElementById('active-count').textContent=d.activeNow+' active';
+    const kpis=[{icon:'👥',label:'Total Users',val:d.users.total,sub:d.users.verified+' verified',delta:'+'+d.users.today+' today',cls:'blue'},{icon:'✅',label:'Verified',val:d.users.verified,sub:(d.users.total-d.users.verified)+' pending',delta:'',cls:'green'},{icon:'🚫',label:'Blocked',val:d.users.blocked,sub:'Suspended',delta:'',cls:'red'},{icon:'🔍',label:'Searches',val:d.searches.total,sub:d.searches.today+' today',delta:'+'+d.searches.today+' today',cls:'purple'},{icon:'🔐',label:'Logins',val:d.logins.total,sub:d.logins.today+' today',delta:'',cls:'orange'},{icon:'🟢',label:'Active Now',val:d.activeNow,sub:'Last 15 min',delta:'',cls:'yellow'}];
+    document.getElementById('kpi-grid').innerHTML=kpis.map((k,i)=>`<div class="kpi ${k.cls} fade-up a${i+1}"><div class="kpi-icon">${k.icon}</div><div class="kpi-label">${k.label}</div><div class="kpi-val">${k.val.toLocaleString()}</div><div class="kpi-sub">${k.sub}</div>${k.delta?'<div class="kpi-delta">'+k.delta+'</div>':''}</div>`).join('');
+    drawBar('reg-chart',d.charts.regPerDay,'#38bdf8');drawBar('search-chart',d.charts.searchPerDay,'#818cf8');
+    const tbody=document.querySelector('#cities-table tbody');
+    tbody.innerHTML=d.topCities.length?d.topCities.map((c,i)=>`<tr><td style="color:var(--muted);font-family:var(--fm)">${i+1}</td><td><strong>${c._id||'—'}</strong>${c.country?' <span style="color:var(--faint);font-size:.72rem">'+c.country+'</span>':''}</td><td style="font-family:var(--fm);color:var(--accent)">${c.count}</td></tr>`).join(''):'<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:1.5rem">No data yet</td></tr>';
+    loadFeed();
+  }catch(e){document.getElementById('kpi-grid').innerHTML='<div class="error-card" style="grid-column:1/-1">⚠️ '+e.message+' — Is the backend running on port 5000?</div>';}
+}
+function drawBar(id,data,color){
+  const c=document.getElementById(id);if(!c)return;const ctx=c.getContext('2d');
+  const W=c.parentElement.offsetWidth-48,H=200,dpr=devicePixelRatio||1;
+  c.width=W*dpr;c.height=H*dpr;c.style.width=W+'px';c.style.height=H+'px';ctx.scale(dpr,dpr);
+  if(!data||!data.length){ctx.fillStyle='rgba(255,255,255,.2)';ctx.font='13px DM Sans,sans-serif';ctx.textAlign='center';ctx.fillText('No data yet',W/2,H/2);return;}
+  const pL=36,pR=12,pT=24,pB=36,cw=W-pL-pR,ch=H-pT-pB,mx=Math.max(...data.map(d=>d.count),1),bw=Math.max(8,(cw/data.length)*.6);
+  ctx.strokeStyle='rgba(255,255,255,.05)';ctx.lineWidth=1;
+  for(let i=0;i<4;i++){const y=pT+(i/3)*ch;ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(W-pR,y);ctx.stroke();ctx.fillStyle='rgba(255,255,255,.3)';ctx.font='9px JetBrains Mono,monospace';ctx.textAlign='right';ctx.fillText(Math.round(mx-(i/3)*mx),pL-4,y+3);}
+  data.forEach((d,i)=>{const x=pL+(i/(data.length-1||1))*cw,bh=Math.max(3,(d.count/mx)*ch),y=pT+ch-bh;const g=ctx.createLinearGradient(0,y,0,pT+ch);g.addColorStop(0,color);g.addColorStop(1,color+'33');ctx.fillStyle=g;ctx.beginPath();ctx.roundRect(x-bw/2,y,bw,bh,[4,4,0,0]);ctx.fill();ctx.fillStyle='rgba(255,255,255,.35)';ctx.font='9px DM Sans,sans-serif';ctx.textAlign='center';ctx.fillText((d._id||'').slice(5),x,H-8);if(d.count>0){ctx.fillStyle='rgba(255,255,255,.7)';ctx.font='bold 9px JetBrains Mono,monospace';ctx.fillText(d.count,x,y-5);}});
+}
+async function loadFeed(){
+  const feed=document.getElementById('feed');
+  try{
+    const[lg,sr]=await Promise.all([apiCall('/api/admin/logins?limit=10'),apiCall('/api/admin/searches?limit=10')]);
+    const evts=[...lg.logins.map(l=>({type:'login',data:l,time:new Date(l.createdAt)})),...sr.searches.map(s=>({type:'search',data:s,time:new Date(s.createdAt)}))].sort((a,b)=>b.time-a.time).slice(0,20);
+    if(!evts.length){feed.innerHTML='<div style="color:var(--muted);text-align:center;padding:1.5rem">No activity yet</div>';return;}
+    const ac={otp_verified:'#4ade80',login:'#38bdf8',register:'#818cf8',logout:'#6b7280',otp_failed:'#f87171',otp_sent:'#facc15'};
+    const al={otp_verified:'signed in',login:'attempted login',register:'registered',logout:'signed out',otp_sent:'requested OTP',otp_failed:'failed OTP'};
+    feed.innerHTML=evts.map(e=>{
+      if(e.type==='login')return`<div class="fi"><span class="fdot" style="background:${ac[e.data.action]||'#6b7280'}"></span><div class="ftext">🔐 <strong>${e.data.userName||e.data.userEmail||'Unknown'}</strong> ${al[e.data.action]||e.data.action}${e.data.success===false?' <span style="color:var(--danger)">(failed)</span>':''}</div><div class="ftime">${timeAgo(e.time)}</div></div>`;
+      return`<div class="fi"><span class="fdot" style="background:var(--accent2)"></span><div class="ftext">🔍 <strong>${e.data.userName||e.data.userEmail||'Guest'}</strong> searched <strong style="color:var(--accent)">${e.data.city||e.data.query}</strong>${e.data.country?' ('+e.data.country+')':''}</div><div class="ftime">${timeAgo(e.time)}</div></div>`;
+    }).join('');
+  }catch(e){feed.innerHTML='<div style="color:var(--muted);text-align:center;padding:1.5rem">'+e.message+'</div>';}
+}
+function timeAgo(d){const s=Math.floor((Date.now()-d)/1000);if(s<60)return s+'s ago';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';}
+setInterval(loadStats,30000);
+</script></body></html>

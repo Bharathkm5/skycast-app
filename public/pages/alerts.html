@@ -1,0 +1,89 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SkyCast — Alerts</title><link rel="stylesheet" href="../css/global.css"/>
+<style>
+.page-title{font-family:var(--fd);font-size:2rem;font-weight:800}.page-sub{color:var(--muted);font-size:.9rem;margin-bottom:2rem}
+.search-row{display:flex;gap:.75rem;align-items:center;margin-bottom:1.5rem}
+.search-row .search-wrap{flex:1;max-width:340px;position:relative}
+.alert-card{border-radius:var(--radius);margin-bottom:1rem;overflow:hidden;backdrop-filter:blur(24px);border:1px solid;transition:var(--trans);animation:fadeUp .4s ease both}
+.alert-card:hover{transform:translateX(3px)}
+.alert-hdr{display:flex;align-items:center;gap:.75rem;padding:1rem 1.5rem;cursor:pointer}
+.alert-icon{font-size:1.5rem;flex-shrink:0}
+.alert-tg{flex:1}.alert-title{font-family:var(--fd);font-weight:700;font-size:1rem}
+.alert-meta{font-size:.72rem;margin-top:.15rem;opacity:.7;font-family:var(--fm)}
+.sev-badge{font-size:.62rem;font-weight:800;padding:.18rem .55rem;border-radius:100px;font-family:var(--fd);text-transform:uppercase;letter-spacing:.05em}
+.expand-arrow{font-size:.9rem;transition:transform var(--trans);cursor:pointer}
+.expand-arrow.open{transform:rotate(180deg)}
+.alert-body{display:none;padding:0 1.5rem 1.25rem;border-top:1px solid rgba(255,255,255,.08)}
+.alert-body.open{display:block;animation:fadeIn .2s ease}
+.alert-desc{font-size:.875rem;line-height:1.7;color:var(--muted);margin-top:1rem}
+.alert-source{font-size:.72rem;margin-top:.75rem;opacity:.45;font-family:var(--fm)}
+.s1{background:rgba(74,222,128,.06);border-color:rgba(74,222,128,.3)}.sb1{background:rgba(74,222,128,.18);color:#4ade80}
+.s2{background:rgba(250,204,21,.06);border-color:rgba(250,204,21,.3)}.sb2{background:rgba(250,204,21,.18);color:#facc15}
+.s3{background:rgba(251,146,60,.06);border-color:rgba(251,146,60,.3)}.sb3{background:rgba(251,146,60,.18);color:#fb923c}
+.s4{background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.4)}.sb4{background:rgba(248,113,113,.18);color:#f87171}
+.no-alert{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:3rem 2rem;text-align:center;backdrop-filter:blur(24px)}
+.cond-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1rem;margin-bottom:1.5rem}
+.cond-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:1.25rem 1.4rem;backdrop-filter:blur(24px)}
+</style></head><body>
+<canvas id="weather-canvas"></canvas>
+<div class="page-wrap">
+<nav class="nav"><a href="../index.html" class="nav-logo">🌤️ SkyCast</a>
+<ul class="nav-links" id="nl"><li><a href="../index.html">🏠 Dashboard</a></li><li><a href="forecast.html">📅 Forecast</a></li><li><a href="hourly.html">🕐 Hourly</a></li><li><a href="map.html">🗺️ Map</a></li><li><a href="air-quality.html">🌿 Air Quality</a></li><li><a href="alerts.html" class="active">⚠️ Alerts</a></li><li><a href="compare.html">⚖️ Compare</a></li><li><a href="settings.html">⚙️ Settings</a></li></ul>
+<div class="nav-right"><button class="hamburger" onclick="document.getElementById('nl').classList.toggle('mob-open')"><span></span><span></span><span></span></button></div></nav>
+<main class="main">
+  <div class="fade-up"><div class="page-title">⚠️ Weather Alerts</div><div class="page-sub" id="city-sub">Loading…</div></div>
+  <div class="search-row fade-up a1"><div class="search-wrap"><span class="search-icon">🔍</span><input class="search-input" id="city-search" type="text" placeholder="Search city…" style="padding-left:2.8rem"/></div>
+  <button class="btn btn-ghost btn-sm" onclick="useMyLoc()">📍 My Location</button>
+  <button class="btn btn-ghost btn-sm" onclick="loadPage(curLat,curLon)">🔄</button></div>
+  <div id="alerts-content"><div class="loading-wrap"><div class="spinner"></div></div></div>
+</main></div>
+<script src="../js/config.js"></script><script src="../js/api.js"></script><script src="../js/animations.js"></script>
+<script>
+requireAuth();
+let curLat=CONFIG.DEFAULT_LAT,curLon=CONFIG.DEFAULT_LON;
+const sv=JSON.parse(localStorage.getItem('skycast_last')||'null');if(sv){curLat=sv.lat;curLon=sv.lon;}
+function autoAlerts(w,aqi){
+  const alerts=[],sym=getUnitSymbol(),unit=getUnit();
+  const tempC=unit==='imperial'?(w.main.temp-32)*5/9:w.main.temp;
+  if(w.wind.speed>15)alerts.push({sev:3,icon:'💨',title:'High Wind Warning',desc:'Wind speeds of '+w.wind.speed+' '+getWindUnit()+(w.wind.gust?' with gusts up to '+w.wind.gust.toFixed(1)+' '+getWindUnit():''),source:'OpenWeatherMap',meta:'Active now'});
+  else if(w.wind.speed>10)alerts.push({sev:2,icon:'🌬️',title:'Moderate Wind Advisory',desc:'Wind around '+w.wind.speed+' '+getWindUnit()+'. Exercise caution outdoors.',source:'OpenWeatherMap',meta:'Active now'});
+  if(tempC>38)alerts.push({sev:4,icon:'🌡️',title:'Extreme Heat Warning',desc:'Temperature is '+Math.round(w.main.temp)+sym+' (feels like '+Math.round(w.main.feels_like)+sym+'). Risk of heat exhaustion. Stay hydrated and avoid direct sunlight.',source:'Temperature Analysis',meta:'Active now'});
+  else if(tempC>32)alerts.push({sev:3,icon:'☀️',title:'Heat Advisory',desc:'Temperature of '+Math.round(w.main.temp)+sym+' may cause discomfort. Keep hydrated.',source:'Temperature Analysis',meta:'Active now'});
+  else if(tempC<0)alerts.push({sev:3,icon:'🥶',title:'Frost Warning',desc:'Temperature below freezing at '+Math.round(w.main.temp)+sym+'. Risk of ice on roads.',source:'Temperature Analysis',meta:'Active now'});
+  if(w.main.humidity>85)alerts.push({sev:2,icon:'💧',title:'High Humidity Advisory',desc:'Humidity at '+w.main.humidity+'%. Combined with current temperature, heat index is elevated.',source:'Humidity Analysis',meta:'Current conditions'});
+  const wid=w.weather[0].id;
+  if(wid>=200&&wid<300)alerts.push({sev:4,icon:'⛈️',title:'Thunderstorm Warning',desc:'Active thunderstorm. Stay indoors. Avoid open fields, tall trees, and water bodies. Unplug electronics.',source:'OpenWeatherMap',meta:'Active now'});
+  else if(wid>=500&&wid<502)alerts.push({sev:2,icon:'🌧️',title:'Rain Advisory',desc:w.weather[0].description+'. Roads may be slippery.',source:'OpenWeatherMap',meta:'Active now'});
+  else if(wid>=502&&wid<505)alerts.push({sev:4,icon:'🌧️',title:'Heavy Rain Warning',desc:'Heavy rain. Risk of flooding. Do not drive through flooded roads.',source:'OpenWeatherMap',meta:'Active now'});
+  else if(wid>=600&&wid<700)alerts.push({sev:3,icon:'❄️',title:'Winter Weather Advisory',desc:w.weather[0].description+'. Roads may be slippery.',source:'OpenWeatherMap',meta:'Active now'});
+  if(aqi){const i=aqi.list[0].main.aqi;if(i>=4)alerts.push({sev:4,icon:'😷',title:'Poor Air Quality Warning',desc:'AQI is '+i+' (Very Poor). Sensitive groups should stay indoors.',source:'Air Pollution API',meta:'Current readings'});else if(i===3)alerts.push({sev:2,icon:'🌿',title:'Moderate Air Quality',desc:'AQI is Moderate. Sensitive individuals should reduce outdoor activity.',source:'Air Pollution API',meta:'Current readings'});}
+  if(w.visibility<1000)alerts.push({sev:3,icon:'🌫️',title:'Dense Fog Advisory',desc:'Visibility reduced to '+(w.visibility/1000).toFixed(1)+' km. Drive slowly.',source:'Visibility Analysis',meta:'Active now'});
+  return alerts.sort((a,b)=>b.sev-a.sev);
+}
+async function loadPage(lat,lon){
+  curLat=lat;curLon=lon;document.getElementById('alerts-content').innerHTML='<div class="loading-wrap"><div class="spinner"></div></div>';
+  try{
+    const[cur,aqi]=await Promise.all([WeatherAPI.getCurrent(lat,lon),WeatherAPI.getAirQuality(lat,lon).catch(()=>null)]);
+    const isDay=cur.dt>cur.sys.sunrise&&cur.dt<cur.sys.sunset;applyWeatherBackground(cur.weather[0].id,isDay);setWeatherAnimation(cur.weather[0].id,isDay);
+    document.getElementById('city-sub').textContent='📍 '+cur.name+', '+cur.sys.country+' · Updated '+new Date().toLocaleTimeString();
+    renderAlerts(cur,aqi);
+  }catch(e){document.getElementById('alerts-content').innerHTML='<div class="error-card">⚠️ '+e.message+'</div>';}
+}
+function renderAlerts(cur,aqi){
+  const alerts=autoAlerts(cur,aqi),sym=getUnitSymbol();
+  const condCards=`<div class="section-title" style="margin-bottom:.75rem">📊 Current Conditions</div>
+  <div class="cond-grid fade-up">
+    ${[{icon:'🌡️',title:'Temperature',val:Math.round(cur.main.temp)+sym,sub:'Feels '+Math.round(cur.main.feels_like)+sym,color:'var(--text-muted)'},{icon:'💨',title:'Wind',val:cur.wind.speed+' '+getWindUnit(),sub:WeatherAPI.beaufort(cur.wind.speed),color:cur.wind.speed>15?'#f87171':cur.wind.speed>10?'#fb923c':'var(--success)'},{icon:'👁️',title:'Visibility',val:(cur.visibility/1000).toFixed(1)+' km',sub:cur.visibility>=10000?'Excellent':cur.visibility>=5000?'Good':'Reduced',color:cur.visibility<1000?'#f87171':cur.visibility<5000?'#fb923c':'var(--success)'},{icon:'💧',title:'Humidity',val:cur.main.humidity+'%',sub:cur.main.humidity<30?'Dry':cur.main.humidity<60?'Comfortable':'Humid',color:cur.main.humidity>85?'#fb923c':'var(--muted)'}].map(c=>`<div class="cond-card"><div class="stat-icon">${c.icon}</div><div class="stat-label">${c.title}</div><div class="stat-value">${c.val}</div><div class="stat-sub" style="color:${c.color}">${c.sub}</div></div>`).join('')}</div>
+  <div class="divider"></div>
+  <div class="section-title" style="margin-bottom:.75rem">⚠️ Active Alerts <span class="badge ${alerts.length>0?'badge-danger':'badge-success'}" style="margin-left:.5rem">${alerts.length}</span></div>`;
+  let alertsHtml='';
+  if(!alerts.length){alertsHtml=`<div class="no-alert fade-up"><div style="font-size:3rem;animation:float 3s ease-in-out infinite;margin-bottom:.75rem">✅</div><div style="font-family:var(--fd);font-size:1.2rem;font-weight:700">All Clear!</div><div style="color:var(--muted);font-size:.875rem;margin-top:.4rem">No active weather alerts. Conditions look stable.</div></div>`;}
+  else alertsHtml=alerts.map((a,i)=>`<div class="alert-card s${a.sev} fade-up a${i+1}"><div class="alert-hdr" onclick="toggleAlert('aa${i}')"><div class="alert-icon">${a.icon}</div><div class="alert-tg"><div class="alert-title">${a.title}</div><div class="alert-meta">${a.meta}</div></div><span class="sev-badge sb${a.sev}">${['','Low','Moderate','High','Severe'][a.sev]}</span><span class="expand-arrow" id="arr-aa${i}">▼</span></div><div class="alert-body" id="aa${i}"><div class="alert-desc">${a.desc}</div><div class="alert-source">Source: ${a.source}</div></div></div>`).join('');
+  document.getElementById('alerts-content').innerHTML=condCards+alertsHtml;
+}
+function toggleAlert(id){document.getElementById(id).classList.toggle('open');document.getElementById('arr-'+id).classList.toggle('open');}
+function useMyLoc(){navigator.geolocation.getCurrentPosition(p=>loadPage(p.coords.latitude,p.coords.longitude));}
+initSearch('city-search',({lat,lon})=>loadPage(lat,lon));
+initWeatherCanvas();loadPage(curLat,curLon);
+</script></body></html>

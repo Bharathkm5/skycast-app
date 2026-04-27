@@ -1,0 +1,99 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SkyCast — Compare</title><link rel="stylesheet" href="../css/global.css"/>
+<style>
+.page-title{font-family:var(--fd);font-size:2rem;font-weight:800}.page-sub{color:var(--muted);font-size:.9rem;margin-bottom:2rem}
+.city-inputs{display:grid;grid-template-columns:1fr auto 1fr;gap:1rem;align-items:flex-end;margin-bottom:1.5rem}
+.vs-badge{background:var(--glass);border:1px solid var(--glass-border);border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:800;font-size:.85rem;color:var(--muted);flex-shrink:0}
+.cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem}
+.city-col{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:2rem;backdrop-filter:blur(24px);position:relative;overflow:hidden}
+.city-col.ca{border-color:rgba(56,189,248,.25)}.city-col.cb{border-color:rgba(129,140,248,.25)}
+.city-col.ca::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(56,189,248,.07) 0%,transparent 70%);pointer-events:none}
+.city-col.cb::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(129,140,248,.07) 0%,transparent 70%);pointer-events:none}
+.col-city{font-family:var(--fd);font-weight:700;font-size:1.1rem;margin-bottom:.25rem}
+.col-country{font-size:.8rem;color:var(--muted)}
+.col-temp{font-family:var(--fm);font-weight:700;font-size:4.5rem;line-height:1;background:linear-gradient(135deg,#fff 0%,rgba(255,255,255,.6) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:.75rem 0 .25rem}
+.col-cond{display:flex;align-items:center;gap:.4rem;font-size:.9rem;color:var(--muted);text-transform:capitalize}
+.col-stats{display:flex;flex-direction:column;gap:0;margin-top:1.25rem}
+.csr{display:flex;align-items:center;justify-content:space-between;padding:.6rem 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.875rem}
+.csr:last-child{border-bottom:none}
+.csr-label{color:var(--muted);display:flex;align-items:center;gap:.35rem}
+.csr-val{font-family:var(--fm);font-weight:600}
+.csr-val.better{color:var(--success)}.csr-val.worse{color:var(--danger)}
+.winner-banner{background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.25);border-radius:var(--radius);padding:1.25rem 1.75rem;backdrop-filter:blur(24px);margin-bottom:1.25rem;display:flex;align-items:center;gap:1rem}
+.bar-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:1.5rem 1.75rem;backdrop-filter:blur(24px);margin-bottom:1.25rem}
+.bar-row{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem}
+.bar-row:last-child{margin-bottom:0}
+.bar-lbl{font-size:.68rem;color:var(--faint);font-family:var(--fd);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.bar-track{height:6px;background:var(--glass-border);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px}
+.placeholder{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:3rem;text-align:center;backdrop-filter:blur(24px)}
+@media(max-width:768px){.cmp-grid{grid-template-columns:1fr}.city-inputs{grid-template-columns:1fr}.vs-badge{display:none}}
+</style></head><body>
+<canvas id="weather-canvas"></canvas>
+<div class="page-wrap">
+<nav class="nav"><a href="../index.html" class="nav-logo">🌤️ SkyCast</a>
+<ul class="nav-links" id="nl"><li><a href="../index.html">🏠 Dashboard</a></li><li><a href="forecast.html">📅 Forecast</a></li><li><a href="hourly.html">🕐 Hourly</a></li><li><a href="map.html">🗺️ Map</a></li><li><a href="air-quality.html">🌿 Air Quality</a></li><li><a href="alerts.html">⚠️ Alerts</a></li><li><a href="compare.html" class="active">⚖️ Compare</a></li><li><a href="settings.html">⚙️ Settings</a></li></ul>
+<div class="nav-right"><div class="unit-toggle"><button class="unit-btn" id="uc" onclick="setUnit('metric')">°C</button><button class="unit-btn" id="uf" onclick="setUnit('imperial')">°F</button></div>
+<button class="hamburger" onclick="document.getElementById('nl').classList.toggle('mob-open')"><span></span><span></span><span></span></button></div></nav>
+<main class="main">
+  <div class="fade-up"><div class="page-title">⚖️ Compare Cities</div><div class="page-sub">Side-by-side weather comparison for any two cities</div></div>
+  <div class="city-inputs fade-up a1">
+    <div><div style="font-size:.72rem;color:var(--accent);font-family:var(--fd);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem">City A</div>
+      <div class="search-wrap" style="position:relative"><span class="search-icon">🔍</span><input class="search-input" id="sa" type="text" placeholder="e.g. Mumbai" style="padding-left:2.8rem;border-color:rgba(56,189,248,.3)"/></div></div>
+    <div class="vs-badge">VS</div>
+    <div><div style="font-size:.72rem;color:var(--accent2);font-family:var(--fd);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem">City B</div>
+      <div class="search-wrap" style="position:relative"><span class="search-icon">🔍</span><input class="search-input" id="sb" type="text" placeholder="e.g. Delhi" style="padding-left:2.8rem;border-color:rgba(129,140,248,.3)"/></div></div>
+  </div>
+  <div id="cmp-content">
+    <div class="placeholder fade-up"><div style="font-size:3rem;animation:float 3s ease-in-out infinite;margin-bottom:.75rem">⚖️</div><div style="font-family:var(--fd);font-size:1.2rem;font-weight:700">Search two cities to compare</div><div style="color:var(--muted);font-size:.875rem;margin-top:.4rem">Type in both search boxes above</div></div>
+  </div>
+</main></div>
+<script src="../js/config.js"></script><script src="../js/api.js"></script><script src="../js/animations.js"></script>
+<script>
+requireAuth();
+const _uu=getUnit();document.getElementById('uc').classList.toggle('active',_uu==='metric');document.getElementById('uf').classList.toggle('active',_uu==='imperial');
+function setUnit(u){localStorage.setItem('unit',u);document.getElementById('uc').classList.toggle('active',u==='metric');document.getElementById('uf').classList.toggle('active',u==='imperial');if(cityA&&cityB)renderCompare(cityA,cityB);}
+let cityA=null,cityB=null;
+initSearch('sa',async({lat,lon})=>{try{cityA=await WeatherAPI.getCurrent(lat,lon);if(cityB)renderCompare(cityA,cityB);else showSingle('A',cityA);}catch(e){showToast('Could not load City A','error');}});
+initSearch('sb',async({lat,lon})=>{try{cityB=await WeatherAPI.getCurrent(lat,lon);if(cityA)renderCompare(cityA,cityB);else showSingle('B',cityB);}catch(e){showToast('Could not load City B','error');}});
+function showSingle(which,w){const sym=getUnitSymbol();document.getElementById('cmp-content').innerHTML=`<div class="placeholder fade-up"><div style="font-size:1.5rem;margin-bottom:.5rem">📍 ${w.name}, ${w.sys.country} loaded (${Math.round(w.main.temp)}${sym})</div><div style="color:var(--muted);font-size:.875rem">Now search City ${which==='A'?'B':'A'} to compare</div></div>`;}
+function score(w){
+  const unit=getUnit(),tempC=unit==='imperial'?(w.main.temp-32)*5/9:w.main.temp;
+  let s=100;if(tempC<15||tempC>32)s-=20;if(tempC<0||tempC>40)s-=30;if(w.main.humidity>80)s-=15;if(w.wind.speed>15)s-=15;if(w.visibility<5000)s-=10;
+  const wid=w.weather[0].id;if(wid>=200&&wid<600)s-=25;return Math.max(0,Math.min(100,s));
+}
+function renderCompare(a,b){
+  const sym=getUnitSymbol(),unit=getUnit(),sA=score(a),sB=score(b);
+  const winner=sA>sB?a:sB>sA?b:null;
+  applyWeatherBackground((winner||a).weather[0].id,true);
+  const stats=[{lbl:'🌡️ Temperature',vA:Math.round(a.main.temp)+sym,vB:Math.round(b.main.temp)+sym,rA:a.main.temp,rB:b.main.temp,b:'mid'},{lbl:'🌡️ Feels Like',vA:Math.round(a.main.feels_like)+sym,vB:Math.round(b.main.feels_like)+sym,rA:a.main.feels_like,rB:b.main.feels_like,b:'mid'},{lbl:'💧 Humidity',vA:a.main.humidity+'%',vB:b.main.humidity+'%',rA:a.main.humidity,rB:b.main.humidity,b:'low'},{lbl:'💨 Wind',vA:a.wind.speed+' '+getWindUnit(),vB:b.wind.speed+' '+getWindUnit(),rA:a.wind.speed,rB:b.wind.speed,b:'low'},{lbl:'👁️ Visibility',vA:(a.visibility/1000).toFixed(1)+' km',vB:(b.visibility/1000).toFixed(1)+' km',rA:a.visibility,rB:b.visibility,b:'high'},{lbl:'☁️ Cloud Cover',vA:a.clouds.all+'%',vB:b.clouds.all+'%',rA:a.clouds.all,rB:b.clouds.all,b:'low'},{lbl:'📊 Pressure',vA:a.main.pressure+' hPa',vB:b.main.pressure+' hPa',rA:a.main.pressure,rB:b.main.pressure,b:'none'}];
+  function cls(s,rA,rB){if(s==='none')return['',''];const d=rA-rB,aW=(s==='high'&&d>0)||(s==='low'&&d<0),bW=(s==='high'&&d<0)||(s==='low'&&d>0);return[aW?'better':bW?'worse':'',bW?'better':aW?'worse':''];}
+  const rowsA=stats.map(s=>{const[ca]=cls(s.b,s.rA,s.rB);return`<div class="csr"><span class="csr-label">${s.lbl}</span><span class="csr-val ${ca}">${s.vA}</span></div>`;}).join('');
+  const rowsB=stats.map(s=>{const[,cb]=cls(s.b,s.rA,s.rB);return`<div class="csr"><span class="csr-label">${s.lbl}</span><span class="csr-val ${cb}">${s.vB}</span></div>`;}).join('');
+  const bars=[{lbl:'Temperature',vA:a.main.temp,vB:b.main.temp,suf:sym},{lbl:'Humidity',vA:a.main.humidity,vB:b.main.humidity,suf:'%'},{lbl:'Wind Speed',vA:a.wind.speed,vB:b.wind.speed,suf:' '+getWindUnit()},{lbl:'Cloud Cover',vA:a.clouds.all,vB:b.clouds.all,suf:'%'}].map(r=>{const mx=Math.max(Math.abs(r.vA),Math.abs(r.vB),1),pA=Math.max(5,Math.round((Math.abs(r.vA)/mx)*100)),pB=Math.max(5,Math.round((Math.abs(r.vB)/mx)*100));
+    return`<div class="bar-row"><div class="bar-lbl">${r.lbl}</div>
+    <div style="display:grid;grid-template-columns:70px 1fr 8px 1fr 70px;gap:.5rem;align-items:center">
+      <div style="text-align:right;font-family:var(--fm);font-size:.8rem;font-weight:600;color:var(--accent)">${Math.round(r.vA)}${r.suf}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pA}%;background:var(--accent);float:right"></div></div>
+      <div style="width:1px;height:16px;background:var(--glass-border);margin:auto"></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pB}%;background:var(--accent2)"></div></div>
+      <div style="font-family:var(--fm);font-size:.8rem;font-weight:600;color:var(--accent2)">${Math.round(r.vB)}${r.suf}</div>
+    </div></div>`;}).join('');
+  const iA=WeatherAPI.getIconUrl(a.weather[0].icon,2),iB=WeatherAPI.getIconUrl(b.weather[0].icon,2);
+  const tip=sA>sB+15?`🌟 <strong>${a.name}</strong> has significantly better conditions (${sA}/100 vs ${sB}/100).`:sB>sA+15?`🌟 <strong>${b.name}</strong> has significantly better conditions (${sB}/100 vs ${sA}/100).`:`Both cities have similar conditions today (${sA} vs ${sB}/100). Make your choice based on your preferences!`;
+  document.getElementById('cmp-content').innerHTML=`
+  <div class="winner-banner fade-up"><div style="font-size:2rem">${sA===sB?'🤝':'🏆'}</div><div><div style="font-family:var(--fd);font-weight:700;font-size:1rem">${sA===sB?"It's a Tie!":winner.name+' has better weather today'}</div><div style="font-size:.82rem;color:var(--muted);margin-top:.2rem">Comfort scores: ${a.name} ${sA}/100 · ${b.name} ${sB}/100</div></div></div>
+  <div class="cmp-grid">
+    <div class="city-col ca fade-up a1"><div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem"><span style="background:rgba(56,189,248,.15);color:var(--accent);font-size:.65rem;font-weight:800;padding:.1rem .45rem;border-radius:4px;font-family:var(--fd)">A</span><div><div class="col-city">📍 ${a.name}</div><div class="col-country">${a.sys.country}</div></div>${sA>=sB?'<span style="font-size:1.2rem;margin-left:auto">🏆</span>':''}</div>
+      <div class="col-temp">${Math.round(a.main.temp)}${sym}</div><div class="col-cond"><img src="${iA}" width="36" height="36" alt=""/> ${a.weather[0].description}</div>
+      <div class="col-stats">${rowsA}</div></div>
+    <div class="city-col cb fade-up a2"><div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem"><span style="background:rgba(129,140,248,.15);color:var(--accent2);font-size:.65rem;font-weight:800;padding:.1rem .45rem;border-radius:4px;font-family:var(--fd)">B</span><div><div class="col-city">📍 ${b.name}</div><div class="col-country">${b.sys.country}</div></div>${sB>sA?'<span style="font-size:1.2rem;margin-left:auto">🏆</span>':''}</div>
+      <div class="col-temp">${Math.round(b.main.temp)}${sym}</div><div class="col-cond"><img src="${iB}" width="36" height="36" alt=""/> ${b.weather[0].description}</div>
+      <div class="col-stats">${rowsB}</div></div>
+  </div>
+  <div class="bar-card fade-up a3"><div class="section-title" style="margin-bottom:1.25rem">📊 Visual Comparison <span style="margin-left:auto;display:flex;gap:1rem;font-size:.72rem;font-family:var(--fb);text-transform:none;letter-spacing:0"><span style="display:flex;align-items:center;gap:.3rem"><span style="width:10px;height:10px;background:var(--accent);border-radius:50%;display:inline-block"></span>${a.name}</span><span style="display:flex;align-items:center;gap:.3rem"><span style="width:10px;height:10px;background:var(--accent2);border-radius:50%;display:inline-block"></span>${b.name}</span></span></div>${bars}</div>
+  <div class="glass-s fade-up a4" style="padding:1.25rem 1.75rem"><div class="section-title" style="margin-bottom:.75rem">💡 Travel Tip</div><div style="font-size:.875rem;color:var(--muted);line-height:1.7">${tip}</div></div>`;
+}
+initWeatherCanvas();
+</script></body></html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SkyCast — Sign In</title><link rel="stylesheet" href="../css/global.css"/>
+<style>
+body{display:flex;align-items:center;justify-content:center;min-height:100vh;overflow:hidden}
+.au{position:fixed;inset:0;z-index:0;overflow:hidden}
+.ab{position:absolute;border-radius:50%;filter:blur(90px);opacity:.28;animation:fb 9s ease-in-out infinite}
+.ab:nth-child(1){width:700px;height:700px;background:radial-gradient(#1e40af,#38bdf8);top:-250px;left:-220px}
+.ab:nth-child(2){width:550px;height:550px;background:radial-gradient(#7c3aed,#818cf8);top:15%;right:-160px;animation-delay:2.5s}
+.ab:nth-child(3){width:450px;height:450px;background:radial-gradient(#f97316,#fb923c);bottom:-120px;left:30%;animation-delay:4.5s}
+.ab:nth-child(4){width:380px;height:380px;background:radial-gradient(#0891b2,#22d3ee);bottom:5%;left:-80px;animation-delay:1.5s}
+@keyframes fb{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-20px) scale(1.06)}66%{transform:translate(-20px,30px) scale(.94)}}
+#sc{position:fixed;inset:0;z-index:0;pointer-events:none}
+.card{position:relative;z-index:10;width:100%;max-width:430px;margin:1rem;background:rgba(8,18,38,.82);border:1px solid rgba(255,255,255,.13);border-radius:26px;backdrop-filter:blur(44px);padding:2.5rem 2.25rem;box-shadow:0 36px 90px rgba(0,0,0,.65);animation:scaleIn .5s ease}
+.logo{text-align:center;margin-bottom:1.75rem}
+.logo-icon{font-size:3rem;display:block;margin-bottom:.5rem;animation:float 3.5s ease-in-out infinite}
+.logo-text{font-family:var(--fd);font-size:1.9rem;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo-sub{font-size:.82rem;color:var(--muted);margin-top:.25rem}
+.dots{display:flex;justify-content:center;gap:.4rem;margin-bottom:1.5rem}
+.dot{height:4px;border-radius:2px;background:var(--glass-border);transition:var(--trans)}
+.dot.active{background:var(--accent);width:28px;opacity:.7}.dot.done{background:var(--accent);width:28px}.dot.idle{width:14px}
+.tabs{display:flex;gap:2px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:10px;padding:3px;margin-bottom:1.75rem}
+.tab{flex:1;text-align:center;padding:.5rem;border-radius:8px;font-size:.875rem;font-weight:600;cursor:pointer;border:none;background:none;color:var(--muted);font-family:var(--fb);transition:var(--trans)}
+.tab.active{background:var(--glass-2);color:var(--text);border:1px solid var(--glass-border)}
+.step{display:none}.step.on{display:block;animation:fadeIn .3s ease}
+.step-title{font-family:var(--fd);font-size:1.3rem;font-weight:700;margin-bottom:.35rem}
+.step-desc{font-size:.875rem;color:var(--muted);margin-bottom:1.75rem}
+.otp-row{display:flex;gap:.5rem;justify-content:center;margin:1.25rem 0}
+.ob{width:50px;height:58px;background:var(--glass);border:1.5px solid var(--glass-border);border-radius:12px;text-align:center;font-size:1.4rem;font-weight:700;color:var(--text);font-family:var(--fm);outline:none;transition:var(--trans);caret-color:var(--accent)}
+.ob:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-g)}.ob.filled{border-color:rgba(56,189,248,.5);background:rgba(56,189,248,.06)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.ob.shake{animation:shake .4s ease}
+.email-ok{background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.25);border-radius:10px;padding:.75rem 1rem;font-size:.82rem;color:var(--success);margin-bottom:1rem;display:flex;align-items:flex-start;gap:.5rem}
+.dev-box{background:rgba(250,204,21,.08);border:1px solid rgba(250,204,21,.25);border-radius:10px;padding:.65rem 1rem;font-size:.78rem;color:var(--warning);margin-bottom:1rem;display:none;align-items:flex-start;gap:.5rem}
+.timer-line{text-align:center;font-size:.82rem;color:var(--muted);margin-top:.75rem}
+.timer-line span{color:var(--accent);font-weight:700;font-family:var(--fm)}
+.resend-btn{background:none;border:none;color:var(--accent);font-size:.82rem;cursor:pointer;font-family:var(--fb);text-decoration:underline;margin:.35rem auto 0;display:block}
+.resend-btn:disabled{color:var(--muted);cursor:default;text-decoration:none}
+.pw-wrap{position:relative}
+.pw-eye{position:absolute;right:.9rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;transition:var(--trans)}
+.pw-eye:hover{color:var(--text)}
+.or-div{display:flex;align-items:center;gap:.75rem;margin:1.25rem 0;color:var(--muted);font-size:.78rem}
+.or-div::before,.or-div::after{content:'';flex:1;height:1px;background:var(--glass-border)}
+.err-msg{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);border-radius:8px;padding:.6rem .9rem;font-size:.82rem;color:var(--danger);margin-bottom:.75rem;display:none}
+.err-msg.on{display:block;animation:fadeIn .2s ease}
+</style></head><body>
+<div class="au"><div class="ab"></div><div class="ab"></div><div class="ab"></div><div class="ab"></div></div>
+<canvas id="sc"></canvas>
+<div class="card">
+  <div class="logo"><span class="logo-icon">🌤️</span><div class="logo-text">SkyCast</div><div class="logo-sub">Your intelligent weather companion</div></div>
+  <div class="dots"><div class="dot done" id="d1"></div><div class="dot idle" id="d2"></div><div class="dot idle" id="d3"></div></div>
+  <div class="err-msg" id="err"></div>
+  <div class="step on" id="s1">
+    <div class="tabs"><button class="tab active" id="tl" onclick="switchMode('login')">Sign In</button><button class="tab" id="tr" onclick="switchMode('register')">Create Account</button></div>
+    <div class="form-group" style="margin-bottom:1rem"><label class="form-label">Email Address</label>
+      <div style="position:relative"><span class="search-icon">✉️</span>
+      <input class="form-input" id="em" type="email" placeholder="you@example.com" style="padding-left:2.8rem" autocomplete="email"/></div></div>
+    <div class="form-group" id="grp-name" style="margin-bottom:1rem;display:none"><label class="form-label">Full Name</label>
+      <input class="form-input" id="nm" type="text" placeholder="Your full name" autocomplete="name"/></div>
+    <div class="form-group" style="margin-bottom:1.5rem"><label class="form-label">Password</label>
+      <div class="pw-wrap"><input class="form-input" id="pw" type="password" placeholder="Min 6 characters" style="padding-right:2.8rem" autocomplete="current-password"/>
+      <button class="pw-eye" onclick="togglePw()">👁️</button></div></div>
+    <button class="btn btn-primary btn-full" id="btn1" onclick="step1()">Continue →</button>
+    <div class="or-div">or</div>
+    <button class="btn btn-ghost btn-full" style="font-size:.85rem" onclick="demoLogin()">🚀 Demo — Skip Login</button>
+  </div>
+  <div class="step" id="s2">
+    <div class="step-title">Check Your Email</div>
+    <div class="step-desc">We sent a 6-digit code to<br/><strong id="otp-email" style="color:var(--accent)">—</strong></div>
+    <div class="email-ok">✅ <span>OTP email sent! Check your inbox and spam folder.</span></div>
+    <div class="dev-box" id="dev-box">⚠️ <span>Dev mode — Email failed. OTP: <strong id="dev-otp" style="font-family:var(--fm);font-size:1rem;letter-spacing:.15em">——</strong></span></div>
+    <div class="otp-row"><input class="ob" maxlength="1" data-i="0" inputmode="numeric"/><input class="ob" maxlength="1" data-i="1" inputmode="numeric"/><input class="ob" maxlength="1" data-i="2" inputmode="numeric"/><input class="ob" maxlength="1" data-i="3" inputmode="numeric"/><input class="ob" maxlength="1" data-i="4" inputmode="numeric"/><input class="ob" maxlength="1" data-i="5" inputmode="numeric"/></div>
+    <button class="btn btn-primary btn-full" id="btn2" onclick="verifyOTP()">Verify &amp; Sign In</button>
+    <div class="timer-line">Expires in <span id="cd">10:00</span></div>
+    <button class="resend-btn" id="rb" onclick="resendOTP()" disabled>Resend code</button>
+    <div style="margin-top:1.25rem"><button class="btn btn-ghost btn-sm" onclick="goStep(1)">← Change email</button></div>
+  </div>
+  <div class="step" id="s3">
+    <div style="text-align:center;padding:1rem 0">
+      <div style="font-size:3.5rem;animation:float 2s ease-in-out infinite">🎉</div>
+      <div class="step-title" style="margin-top:1rem">Welcome to SkyCast!</div>
+      <div class="step-desc">Signed in as <strong id="wname"></strong>. Redirecting…</div>
+      <div class="spinner" style="margin:1.5rem auto"></div>
+    </div>
+  </div>
+</div>
+<script src="../js/config.js"></script>
+<script>
+(function(){const c=document.getElementById('sc'),ctx=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;
+const s=Array.from({length:160},()=>({x:Math.random()*c.width,y:Math.random()*c.height,r:.3+Math.random()*1.3,t:Math.random()*Math.PI*2,ts:.008+Math.random()*.02}));
+(function d(){ctx.clearRect(0,0,c.width,c.height);s.forEach(p=>{p.t+=p.ts;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,255,${(.15+.55*Math.sin(p.t)).toFixed(2)})`;ctx.fill();});requestAnimationFrame(d);})();})();
+if(getCurrentUser()&&getToken())location.href='../index.html';
+let mode='login',pendingEmail='',otpTimer,otpLeft=600;
+const boxes=[...document.querySelectorAll('.ob')];
+function showErr(m){const e=document.getElementById('err');e.textContent=m;e.classList.add('on');}
+function clearErr(){document.getElementById('err').classList.remove('on');}
+function goStep(n){document.querySelectorAll('.step').forEach(s=>s.classList.remove('on'));document.getElementById('s'+n).classList.add('on');
+  ['d1','d2','d3'].forEach((id,i)=>{const e=document.getElementById(id);e.classList.remove('active','done','idle');if(i<n-1)e.classList.add('done');else if(i===n-1)e.classList.add('active');else e.classList.add('idle');});clearErr();}
+function switchMode(m){mode=m;document.getElementById('tl').classList.toggle('active',m==='login');document.getElementById('tr').classList.toggle('active',m==='register');document.getElementById('grp-name').style.display=m==='register'?'flex':'none';clearErr();}
+function togglePw(){const i=document.getElementById('pw');i.type=i.type==='password'?'text':'password';}
+function setLoad(id,v){document.getElementById(id).classList.toggle('btn-loading',v);}
+async function step1(){
+  clearErr();
+  const email=document.getElementById('em').value.trim().toLowerCase();
+  const pw=document.getElementById('pw').value;
+  const name=document.getElementById('nm').value.trim();
+  if(!email||!email.includes('@'))return showErr('Enter a valid email address.');
+  if(pw.length<6)return showErr('Password must be at least 6 characters.');
+  if(mode==='register'&&!name)return showErr('Enter your full name.');
+  setLoad('btn1',true);
+  try{
+    const ep=mode==='register'?'/api/auth/register':'/api/auth/login';
+    const body=mode==='register'?{name,email,password:pw}:{email,password:pw};
+    const data=await apiCall(ep,{method:'POST',body:JSON.stringify(body)});
+    pendingEmail=email;document.getElementById('otp-email').textContent=email;
+    if(data.devOtp){document.getElementById('dev-box').style.display='flex';document.getElementById('dev-otp').textContent=data.devOtp;}
+    goStep(2);startTimer();boxes[0].focus();
+  }catch(e){showErr(e.message);}finally{setLoad('btn1',false);}
+}
+boxes.forEach((b,i)=>{
+  b.addEventListener('input',e=>{const v=e.target.value.replace(/\D/g,'');e.target.value=v.slice(-1);e.target.classList.toggle('filled',!!e.target.value);if(v&&i<5)boxes[i+1].focus();if(getOTP().length===6)setTimeout(verifyOTP,150);});
+  b.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!b.value&&i>0){boxes[i-1].value='';boxes[i-1].classList.remove('filled');boxes[i-1].focus();}});
+  b.addEventListener('paste',e=>{const p=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'');if(p.length===6){[...p].forEach((c,j)=>{boxes[j].value=c;boxes[j].classList.add('filled');});boxes[5].focus();setTimeout(verifyOTP,150);}e.preventDefault();});
+});
+function getOTP(){return boxes.map(b=>b.value).join('');}
+async function verifyOTP(){
+  const otp=getOTP();if(otp.length!==6)return;
+  clearErr();setLoad('btn2',true);
+  try{
+    const data=await apiCall('/api/auth/verify-otp',{method:'POST',body:JSON.stringify({email:pendingEmail,otp})});
+    clearInterval(otpTimer);setToken(data.token);setCurrentUser(data.user);
+    if(data.user.unit)localStorage.setItem('unit',data.user.unit);
+    document.getElementById('wname').textContent=data.user.name;
+    goStep(3);setTimeout(()=>location.href='../index.html',1800);
+  }catch(e){showErr(e.message);boxes.forEach(b=>{b.classList.add('shake');setTimeout(()=>b.classList.remove('shake'),400);});boxes[0].focus();}
+  finally{setLoad('btn2',false);}
+}
+async function resendOTP(){
+  clearErr();
+  try{const data=await apiCall('/api/auth/resend-otp',{method:'POST',body:JSON.stringify({email:pendingEmail})});
+    if(data.devOtp){document.getElementById('dev-box').style.display='flex';document.getElementById('dev-otp').textContent=data.devOtp;}
+    boxes.forEach(b=>{b.value='';b.classList.remove('filled');});boxes[0].focus();startTimer();showToast('New OTP sent!','success');
+  }catch(e){showErr(e.message);}
+}
+function startTimer(){otpLeft=600;clearInterval(otpTimer);document.getElementById('rb').disabled=true;tick();otpTimer=setInterval(tick,1000);}
+function tick(){otpLeft=Math.max(0,otpLeft-1);const m=String(Math.floor(otpLeft/60)).padStart(2,'0'),s=String(otpLeft%60).padStart(2,'0');document.getElementById('cd').textContent=m+':'+s;
+  if(otpLeft<=0){clearInterval(otpTimer);document.getElementById('cd').textContent='Expired';document.getElementById('rb').disabled=false;showErr('OTP expired. Click Resend.');}
+  if(otpLeft===570)document.getElementById('rb').disabled=false;}
+function demoLogin(){const u={_id:'demo',name:'Demo User',email:'demo@skycast.app',verified:true,role:'user'};localStorage.setItem('skycast_user',JSON.stringify(u));localStorage.setItem('skycast_token','demo_token');document.getElementById('wname').textContent='Demo User';goStep(3);setTimeout(()=>location.href='../index.html',1500);}
+document.getElementById('pw').addEventListener('keydown',e=>{if(e.key==='Enter')step1();});
+document.getElementById('em').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('pw').focus();});
+</script></body></html>

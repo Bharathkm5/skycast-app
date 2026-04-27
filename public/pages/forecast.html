@@ -1,0 +1,101 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SkyCast — 5-Day Forecast</title><link rel="stylesheet" href="../css/global.css"/>
+<style>
+.page-title{font-family:var(--fd);font-size:2rem;font-weight:800}.page-sub{color:var(--muted);font-size:.9rem;margin-bottom:2rem}
+.search-row{display:flex;gap:.75rem;align-items:center;margin-bottom:1.5rem}
+.search-row .search-wrap{flex:1;max-width:360px;position:relative}
+.day-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem;backdrop-filter:blur(24px);transition:var(--trans)}
+.day-card:hover{border-color:var(--glass-border2)}
+.day-header{display:grid;grid-template-columns:120px 1fr auto auto auto;align-items:center;gap:1rem;padding:1.25rem 1.75rem;cursor:pointer;transition:var(--trans)}
+.day-header:hover{background:var(--glass-hover)}
+.day-name{font-family:var(--fd);font-weight:700;font-size:1rem}
+.day-date{font-size:.75rem;color:var(--muted);margin-top:.1rem;font-family:var(--fm)}
+.day-cond{display:flex;align-items:center;gap:.6rem}
+.day-cond span{font-size:.85rem;color:var(--muted);text-transform:capitalize}
+.day-stats{display:flex;gap:1.5rem;align-items:center}
+.ds{text-align:center}.ds-lbl{font-size:.62rem;color:var(--faint);text-transform:uppercase;letter-spacing:.08em;font-family:var(--fd);font-weight:700}.ds-val{font-size:.85rem;font-weight:600;font-family:var(--fm)}
+.day-temps{text-align:right;min-width:65px}
+.day-hi{font-size:1.1rem;font-weight:800;font-family:var(--fm);color:#fb923c}
+.day-lo{font-size:.85rem;font-family:var(--fm);color:#60a5fa}
+.expand-btn{background:none;border:none;color:var(--muted);font-size:.9rem;transition:transform var(--trans);cursor:pointer;padding:.25rem}
+.expand-btn.open{transform:rotate(180deg)}
+.day-detail{display:none;border-top:1px solid var(--glass-border);padding:1.25rem 1.75rem;animation:fadeIn .2s ease}
+.day-detail.open{display:block}
+.hourly-strip{display:flex;gap:.6rem;overflow-x:auto;padding-bottom:.5rem;scrollbar-width:thin}
+.hcard{flex-shrink:0;background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-s);padding:.85rem .65rem;text-align:center;min-width:64px}
+.hcard-time{font-size:.65rem;color:var(--muted);margin-bottom:.3rem}
+.hcard-temp{font-size:.85rem;font-weight:700;font-family:var(--fm);margin-top:.3rem}
+.hcard-pop{font-size:.62rem;color:#60a5fa;margin-top:.2rem}
+.temp-bar-wrap{display:flex;align-items:center;gap:.5rem;margin-top:.75rem}
+.tbl{font-size:.7rem;font-family:var(--fm);color:#60a5fa;min-width:32px;text-align:right}
+.tbh{font-size:.7rem;font-family:var(--fm);color:#fb923c;min-width:32px}
+.tbtrack{flex:1;height:5px;background:var(--glass-border);border-radius:3px;overflow:hidden}
+.tbfill{height:100%;border-radius:3px;background:linear-gradient(90deg,#60a5fa,#facc15,#fb923c)}
+.detail-meta{display:flex;gap:2rem;flex-wrap:wrap;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--glass-border)}
+.dm{font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:.35rem}
+.dm strong{color:var(--text)}
+@media(max-width:768px){.day-header{grid-template-columns:1fr auto auto}.day-cond,.day-stats{display:none}}
+</style></head><body>
+<canvas id="weather-canvas"></canvas>
+<div class="page-wrap">
+<nav class="nav"><a href="../index.html" class="nav-logo">🌤️ SkyCast</a>
+<ul class="nav-links" id="nl"><li><a href="../index.html">🏠 Dashboard</a></li><li><a href="forecast.html" class="active">📅 Forecast</a></li><li><a href="hourly.html">🕐 Hourly</a></li><li><a href="map.html">🗺️ Map</a></li><li><a href="air-quality.html">🌿 Air Quality</a></li><li><a href="alerts.html">⚠️ Alerts</a></li><li><a href="compare.html">⚖️ Compare</a></li><li><a href="settings.html">⚙️ Settings</a></li></ul>
+<div class="nav-right"><div class="unit-toggle"><button class="unit-btn" id="uc" onclick="setUnit('metric')">°C</button><button class="unit-btn" id="uf" onclick="setUnit('imperial')">°F</button></div>
+<button class="hamburger" onclick="document.getElementById('nl').classList.toggle('mob-open')"><span></span><span></span><span></span></button></div></nav>
+<main class="main">
+  <div class="fade-up"><div class="page-title">📅 5-Day Forecast</div><div class="page-sub" id="city-sub">Loading…</div></div>
+  <div class="search-row fade-up a1"><div class="search-wrap"><span class="search-icon">🔍</span><input class="search-input" id="city-search" type="text" placeholder="Search city…" style="padding-left:2.8rem"/></div>
+  <button class="btn btn-ghost btn-sm" onclick="useMyLoc()">📍 My Location</button></div>
+  <div id="fc-container"><div class="loading-wrap"><div class="spinner"></div><span>Loading…</span></div></div>
+</main></div>
+<script src="../js/config.js"></script><script src="../js/api.js"></script><script src="../js/animations.js"></script>
+<script>
+requireAuth();
+const _uu=getUnit();document.getElementById('uc').classList.toggle('active',_uu==='metric');document.getElementById('uf').classList.toggle('active',_uu==='imperial');
+function setUnit(u){localStorage.setItem('unit',u);document.getElementById('uc').classList.toggle('active',u==='metric');document.getElementById('uf').classList.toggle('active',u==='imperial');loadPage(curLat,curLon);}
+let curLat=CONFIG.DEFAULT_LAT,curLon=CONFIG.DEFAULT_LON;
+const sv=JSON.parse(localStorage.getItem('skycast_last')||'null');if(sv){curLat=sv.lat;curLon=sv.lon;}
+async function loadPage(lat,lon){
+  curLat=lat;curLon=lon;document.getElementById('fc-container').innerHTML='<div class="loading-wrap"><div class="spinner"></div></div>';
+  try{
+    const[cur,fc]=await Promise.all([WeatherAPI.getCurrent(lat,lon),WeatherAPI.getForecast(lat,lon)]);
+    const isDay=cur.dt>cur.sys.sunrise&&cur.dt<cur.sys.sunset;
+    applyWeatherBackground(cur.weather[0].id,isDay);setWeatherAnimation(cur.weather[0].id,isDay);
+    document.getElementById('city-sub').textContent='📍 '+cur.name+', '+cur.sys.country;
+    renderFC(fc.list,cur.timezone);
+  }catch(e){document.getElementById('fc-container').innerHTML='<div class="error-card">⚠️ '+e.message+'</div>';}
+}
+function renderFC(list,tz){
+  const days=WeatherAPI.groupByDay(list).slice(0,5),sym=getUnitSymbol();
+  const allT=list.map(h=>h.main.temp),gMin=Math.min(...allT),gMax=Math.max(...allT);
+  document.getElementById('fc-container').innerHTML=days.map((day,i)=>{
+    const id='d'+i;
+    const label=i===0?'Today':i===1?'Tomorrow':WeatherAPI.fullDay(day[0].dt,tz);
+    const dateStr=new Date(day[0].dt*1000).toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'});
+    const temps=day.map(d=>d.main.temp),hi=Math.round(Math.max(...temps)),lo=Math.round(Math.min(...temps));
+    const pop=Math.round(Math.max(...day.map(d=>d.pop||0))*100);
+    const mid=day[Math.floor(day.length/2)],icon=WeatherAPI.getIconUrl(mid.weather[0].icon);
+    const avgW=(day.reduce((s,d)=>s+d.wind.speed,0)/day.length).toFixed(1);
+    const avgH=Math.round(day.reduce((s,d)=>s+d.main.humidity,0)/day.length);
+    const bL=Math.round(((lo-gMin)/(gMax-gMin||1))*100),bW=Math.max(5,Math.round(((hi-lo)/(gMax-gMin||1))*100));
+    const hours=day.map(h=>{const d=new Date(h.dt*1000),p=h.pop?Math.round(h.pop*100):0;
+      return`<div class="hcard"><div class="hcard-time">${d.getUTCHours()}:00</div><img src="${WeatherAPI.getIconUrl(h.weather[0].icon)}" width="32" height="32" alt=""/><div class="hcard-temp">${Math.round(h.main.temp)}${sym}</div>${p>0?'<div class="hcard-pop">💧'+p+'%</div>':''}</div>`;}).join('');
+    return`<div class="day-card fade-up a${i+1}"><div class="day-header" onclick="toggleDay('${id}')">
+      <div><div class="day-name">${label}</div><div class="day-date">${dateStr}</div></div>
+      <div class="day-cond"><img src="${icon}" width="36" height="36" alt=""/><span>${mid.weather[0].description}</span></div>
+      <div class="day-stats"><div class="ds"><div class="ds-lbl">Rain</div><div class="ds-val">${pop}%</div></div><div class="ds"><div class="ds-lbl">Hum</div><div class="ds-val">${avgH}%</div></div><div class="ds"><div class="ds-lbl">Wind</div><div class="ds-val">${avgW}</div></div></div>
+      <div class="day-temps"><div class="day-hi">${hi}${sym}</div><div class="day-lo">${lo}${sym}</div></div>
+      <button class="expand-btn" id="btn-${id}">▼</button></div>
+      <div class="day-detail" id="${id}"><div class="section-title" style="margin-bottom:.75rem">Hourly</div>
+      <div class="hourly-strip">${hours}</div>
+      <div class="temp-bar-wrap"><span class="tbl">${lo}${sym}</span><div class="tbtrack"><div class="tbfill" style="margin-left:${bL}%;width:${bW}%"></div></div><span class="tbh">${hi}${sym}</span></div>
+      <div class="detail-meta"><div class="dm">💧 Humidity <strong>${avgH}%</strong></div><div class="dm">💨 Wind <strong>${avgW} ${getWindUnit()}</strong></div><div class="dm">🌧 Rain <strong>${pop}%</strong></div></div>
+      </div></div>`;
+  }).join('');
+}
+function toggleDay(id){document.getElementById(id).classList.toggle('open');document.getElementById('btn-'+id).classList.toggle('open');}
+function useMyLoc(){navigator.geolocation.getCurrentPosition(p=>loadPage(p.coords.latitude,p.coords.longitude));}
+initSearch('city-search',({lat,lon})=>loadPage(lat,lon));
+initWeatherCanvas();loadPage(curLat,curLon);
+</script></body></html>

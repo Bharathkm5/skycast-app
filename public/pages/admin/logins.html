@@ -1,0 +1,54 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SkyCast Admin — Login Logs</title><link rel="stylesheet" href="../../css/global.css"/>
+<style>
+body{background:linear-gradient(145deg,#050d1a 0%,#0a1628 40%,#0f2040 100%)}
+.admin-nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:var(--nav-h);display:flex;align-items:center;padding:0 2rem;background:rgba(5,13,26,.92);backdrop-filter:blur(28px);border-bottom:1px solid rgba(249,115,22,.2)}
+.admin-logo{font-family:var(--fd);font-size:1.3rem;font-weight:800;background:linear-gradient(90deg,#fb923c,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.anl{display:flex;gap:.15rem;margin-left:2rem;list-style:none}.anl a{color:var(--muted);font-size:.875rem;font-weight:500;padding:.38rem .7rem;border-radius:8px;transition:var(--trans);text-decoration:none}.anl a:hover{color:var(--text);background:var(--glass)}.anl a.active{color:#fb923c;background:rgba(249,115,22,.1)}
+.admin-badge{background:linear-gradient(90deg,#f97316,#fb923c);color:#000;font-size:.62rem;font-weight:800;padding:.15rem .45rem;border-radius:4px;font-family:var(--fd)}
+.main{padding-top:calc(var(--nav-h) + 2rem);max-width:1400px;margin:0 auto;padding-left:2rem;padding-right:2rem;padding-bottom:4rem}
+.filter-bar{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:1rem 1.25rem;backdrop-filter:blur(24px);margin-bottom:1.25rem}
+.fsel{background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:.6rem 1rem;color:var(--text);font-family:var(--fb);font-size:.875rem;outline:none;cursor:pointer}.fsel option{background:#0a1628}
+.tw{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);overflow:hidden;backdrop-filter:blur(24px)}
+.dt{width:100%;border-collapse:collapse}
+.dt thead tr{background:rgba(248,113,113,.06);border-bottom:1px solid var(--glass-border2)}
+.dt th{padding:.9rem 1.1rem;text-align:left;font-family:var(--fd);font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;white-space:nowrap}
+.dt td{padding:.75rem 1.1rem;font-size:.875rem;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:middle}
+.dt tr:last-child td{border-bottom:none}.dt tbody tr:hover{background:var(--glass-hover)}
+.ap{display:inline-flex;align-items:center;gap:.3rem;font-size:.68rem;font-weight:700;padding:.18rem .55rem;border-radius:100px;font-family:var(--fd);text-transform:uppercase;letter-spacing:.05em}
+.apv{background:rgba(74,222,128,.12);color:var(--success)}.apf{background:rgba(248,113,113,.12);color:var(--danger)}.aps{background:rgba(250,204,21,.12);color:var(--warning)}.apl{background:rgba(107,114,128,.15);color:#9ca3af}.apr{background:rgba(129,140,248,.12);color:var(--accent2)}.apd{background:rgba(56,189,248,.12);color:var(--accent)}
+.pag{display:flex;gap:.4rem;align-items:center;justify-content:center;padding:1.25rem}
+.pb{background:var(--glass);border:1px solid var(--glass-border);border-radius:8px;padding:.38rem .8rem;font-size:.85rem;cursor:pointer;font-family:var(--fm);color:var(--muted);transition:var(--trans)}
+.pb:hover{background:var(--glass-hover);color:var(--text)}.pb.active{background:rgba(248,113,113,.12);border-color:var(--danger);color:var(--danger)}.pb:disabled{opacity:.35;cursor:default}
+@media(max-width:900px){.anl{display:none}}
+</style></head><body><div class="page-wrap">
+<nav class="admin-nav"><div class="admin-logo">⚡ SkyCast Admin</div>
+<ul class="anl"><li><a href="dashboard.html">📊 Dashboard</a></li><li><a href="users.html">👥 Users</a></li><li><a href="searches.html">🔍 Searches</a></li><li><a href="logins.html" class="active">🔐 Logins</a></li><li><a href="analytics.html">📈 Analytics</a></li></ul>
+<div style="margin-left:auto;display:flex;align-items:center;gap:1rem"><span class="admin-badge">ADMIN</span><a href="../../index.html" class="btn btn-ghost btn-sm">← App</a><button class="btn btn-ghost btn-sm" onclick="logout()" style="color:var(--danger)">Sign Out</button></div></nav>
+<main class="main">
+  <div class="fade-up" style="margin-bottom:1.5rem"><h1 style="font-family:var(--fd);font-size:1.8rem;font-weight:800">🔐 Login Activity</h1><div style="color:var(--muted);font-size:.875rem;margin-top:.25rem" id="sub">All authentication events</div></div>
+  <div class="filter-bar fade-up a1">
+    <select class="fsel" id="af" onchange="load()"><option value="">All Actions</option><option value="otp_verified">Successful Logins</option><option value="otp_failed">Failed OTP</option><option value="otp_sent">OTP Sent</option><option value="logout">Logouts</option></select>
+    <button class="btn btn-ghost btn-sm" onclick="load()">🔄</button>
+    <span id="tot" style="font-size:.8rem;color:var(--muted);margin-left:auto;font-family:var(--fm)"></span>
+  </div>
+  <div class="tw fade-up a2" id="tw"><div class="loading-wrap"><div class="spinner"></div></div></div>
+  <div id="pw"></div>
+</main></div>
+<script src="../../js/config.js"></script>
+<script>
+const user=getCurrentUser();if(!user||!getToken())location.href='../../pages/login.html';
+async function load(page=1){
+  document.getElementById('tw').innerHTML='<div class="loading-wrap"><div class="spinner"></div></div>';
+  try{const p=new URLSearchParams({page,limit:30,action:document.getElementById('af').value});const d=await apiCall('/api/admin/logins?'+p);
+    document.getElementById('tot').textContent=d.total.toLocaleString()+' total';document.getElementById('sub').textContent=d.total.toLocaleString()+' auth events · Page '+d.page+' of '+d.pages;
+    if(!d.logins.length){document.getElementById('tw').innerHTML='<div style="padding:3rem;text-align:center;color:var(--muted)">No login logs yet</div>';return;}
+    const pills={otp_verified:'<span class="ap apv">✅ Signed In</span>',otp_failed:'<span class="ap apf">❌ OTP Failed</span>',otp_sent:'<span class="ap aps">📧 OTP Sent</span>',logout:'<span class="ap apl">🚪 Signed Out</span>',register:'<span class="ap apr">🆕 Registered</span>',login:'<span class="ap apd">🔐 Login Attempt</span>'};
+    const rows=d.logins.map(l=>`<tr><td style="font-size:.72rem;font-family:var(--fm);color:var(--faint)">${new Date(l.createdAt).toLocaleString()}</td><td>${pills[l.action]||'<span class="ap apd">'+l.action+'</span>'}</td><td><strong>${esc(l.userName||'—')}</strong></td><td style="font-size:.72rem;font-family:var(--fm);color:var(--muted)">${esc(l.userEmail||'—')}</td><td style="font-size:.68rem;font-family:var(--fm);color:var(--faint)">${esc(l.ip||'—')}</td></tr>`).join('');
+    document.getElementById('tw').innerHTML=`<table class="dt"><thead><tr><th>Time</th><th>Action</th><th>Name</th><th>Email</th><th>IP</th></tr></thead><tbody>${rows}</tbody></table>`;
+    if(d.pages>1){let h=`<div class="pag"><button class="pb" onclick="load(${page-1})" ${page<=1?'disabled':''}>←</button>`;const s=Math.max(1,page-2),e=Math.min(d.pages,page+2);if(s>1)h+=`<button class="pb" onclick="load(1)">1</button>${s>2?'<span style="padding:0 .3rem;color:var(--faint)">…</span>':''}`;for(let p2=s;p2<=e;p2++)h+=`<button class="pb ${p2===page?'active':''}" onclick="load(${p2})">${p2}</button>`;if(e<d.pages)h+=`${e<d.pages-1?'<span style="padding:0 .3rem;color:var(--faint)">…</span>':''}<button class="pb" onclick="load(${d.pages})">${d.pages}</button>`;h+=`<button class="pb" onclick="load(${page+1})" ${page>=d.pages?'disabled':''}>→</button></div>`;document.getElementById('pw').innerHTML=h;}else document.getElementById('pw').innerHTML='';
+  }catch(e){document.getElementById('tw').innerHTML='<div class="error-card" style="margin:1rem">⚠️ '+e.message+'</div>';}
+}
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+load();
+</script></body></html>
