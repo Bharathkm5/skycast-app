@@ -21,7 +21,9 @@ if (!process.env.MONGO_URI) {
 /* ─────────────────────────────────────────────
    MIDDLEWARE
 ──────────────────────────────────────────── */
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false
+}));
 app.use(morgan('dev'));
 
 app.use(cors({
