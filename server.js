@@ -11,7 +11,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 /* ─────────────────────────────────────────────
-   ENV CHECK (IMPORTANT)
+   ENV CHECK
 ──────────────────────────────────────────── */
 if (!process.env.MONGO_URI) {
   console.error("❌ MONGO_URI missing in environment variables");
@@ -31,6 +31,12 @@ app.use(cors({
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+/* ─────────────────────────────────────────────
+   STATIC FILES (IMPORTANT FIX 🔥)
+   this makes your HTML/CSS/JS work
+──────────────────────────────────────────── */
+app.use(express.static('public'));
 
 /* ─────────────────────────────────────────────
    RATE LIMITING
@@ -55,12 +61,15 @@ app.use('/api/search', require('./routes/search'));
 app.use('/api/admin', require('./routes/admin'));
 
 /* ─────────────────────────────────────────────
-   HEALTH CHECK
+   FRONTEND ROUTE (IMPORTANT FIX 🔥)
 ──────────────────────────────────────────── */
 app.get('/', (req, res) => {
-  res.send('🚀 SkyCast Backend Running');
+  res.sendFile(__dirname + '/public/index.html');
 });
 
+/* ─────────────────────────────────────────────
+   HEALTH CHECK
+──────────────────────────────────────────── */
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
@@ -88,13 +97,21 @@ mongoose.connect(process.env.MONGO_URI)
   });
 
 /* ─────────────────────────────────────────────
-   ADMIN SEED FUNCTION
+   ADMIN SEED FUNCTION (SAFE VERSION)
 ──────────────────────────────────────────── */
 async function seedAdmin() {
   const User = require('./models/User');
 
   try {
-    const exists = await User.findOne({ email: process.env.ADMIN_EMAIL });
+    const email = process.env.ADMIN_EMAIL;
+    const password = process.env.ADMIN_PASSWORD;
+
+    if (!email || !password) {
+      console.log("⚠️ Admin env missing, skipping admin creation");
+      return;
+    }
+
+    const exists = await User.findOne({ email });
 
     if (exists) {
       console.log('👑 Admin already exists');
@@ -103,8 +120,8 @@ async function seedAdmin() {
 
     await User.create({
       name: process.env.ADMIN_NAME || 'SkyCast Admin',
-      email: process.env.ADMIN_EMAIL,
-      password: process.env.ADMIN_PASSWORD,
+      email,
+      password,
       role: 'admin',
       verified: true,
     });
