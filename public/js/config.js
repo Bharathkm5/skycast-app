@@ -1,6 +1,6 @@
 // SkyCast Frontend Config — v2.1
 const CONFIG = {
-  BACKEND_URL: 'http://localhost:5000',
+  BACKEND_URL: 'https://skycast-app-ni92.onrender.com',
   API_KEY: "cf622ac8ec1450b8c7e4a0c06381f84d",
   BASE_URL: 'https://api.openweathermap.org/data/2.5',
   GEO_URL:  'https://api.openweathermap.org/geo/1.0',
