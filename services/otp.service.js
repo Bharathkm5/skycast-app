@@ -1,76 +1,81 @@
-const OTP = require('../models/otp.model');
-const { generateOTP, sendOTPEmail } = require('../utils/mailer');
+const nodemailer = require('nodemailer');
+const Otp = require('../models/Otp');
 
-const OTP_EXPIRY_MINUTES = parseInt(process.env.OTP_EXPIRY_MINUTES) || 10;
-const OTP_MAX_ATTEMPTS = parseInt(process.env.OTP_MAX_ATTEMPTS) || 5;
+const OTP_EXPIRY_MINUTES =
+  parseInt(process.env.OTP_EXPIRY_MINUTES) || 10;
 
-// ✅ SEND OTP
-const sendOTP = async (email, name, purpose = 'verify') => {
+// ─────────────────────────────────────────────
+// Gmail Transport
+// ─────────────────────────────────────────────
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST,
+  port: parseInt(process.env.EMAIL_PORT) || 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+// ─────────────────────────────────────────────
+// Generate OTP
+// ─────────────────────────────────────────────
+function generateOTP() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+// ─────────────────────────────────────────────
+// Send OTP
+// ─────────────────────────────────────────────
+async function createAndSendOTP({
+  email,
+  name,
+  purpose = 'verify',
+}) {
+  email = email.toLowerCase().trim();
+
+  // delete old otp
+  await Otp.deleteMany({ email, purpose });
+
   const otp = generateOTP();
 
-  const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60000);
+  const expiresAt = new Date(
+    Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000
+  );
 
-  // remove old OTP
-  await OTP.deleteMany({ email, purpose });
-
-  // save new OTP
-  await OTP.create({
+  // save otp
+  await Otp.create({
     email,
     otp,
     purpose,
     expiresAt,
   });
 
-  // send email
-  await sendOTPEmail({
+  // send mail
+  await transporter.sendMail({
+    from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_FROM_ADDR}>`,
     to: email,
-    name,
-    otp,
-    purpose,
+    subject: '🌤️ SkyCast OTP Verification',
+    html: `
+      <div style="font-family:Arial;padding:20px">
+        <h2>SkyCast Verification</h2>
+
+        <p>Hello ${name || 'User'},</p>
+
+        <p>Your OTP code is:</p>
+
+        <h1 style="letter-spacing:4px">${otp}</h1>
+
+        <p>This OTP expires in ${OTP_EXPIRY_MINUTES} minutes.</p>
+      </div>
+    `,
   });
 
-  return { success: true };
-};
+  console.log('📧 OTP SENT:', otp);
 
-// ✅ VERIFY OTP
-const verifyOTP = async (email, otp, purpose = 'verify') => {
-  const record = await OTP.findOne({ email, purpose });
-
-  if (!record) {
-    throw new Error('OTP not found');
-  }
-
-  // expired check
-  if (record.expiresAt < new Date()) {
-    await OTP.deleteMany({ email, purpose });
-    throw new Error('OTP expired');
-  }
-
-  // attempt limit
-  if (record.attempts >= OTP_MAX_ATTEMPTS) {
-    throw new Error('Too many attempts');
-  }
-
-  // wrong OTP
-  if (record.otp !== otp) {
-    record.attempts += 1;
-    await record.save();
-    throw new Error('Invalid OTP');
-  }
-
-  // success → delete OTP
-  await OTP.deleteMany({ email, purpose });
-
-  return { success: true };
-};
-
-// ✅ RESEND OTP
-const resendOTP = async (email, name, purpose = 'verify') => {
-  return sendOTP(email, name, purpose);
-};
+  return true;
+}
 
 module.exports = {
-  sendOTP,
-  verifyOTP,
-  resendOTP,
+  createAndSendOTP,
 };
