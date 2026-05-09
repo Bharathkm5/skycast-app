@@ -2,19 +2,21 @@ const nodemailer = require('nodemailer');
 const Otp = require('../models/Otp');
 
 // ─────────────────────────────────────────────
-// CREATE TRANSPORTER
+// TRANSPORTER
 // ─────────────────────────────────────────────
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
 
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 
-  tls: {
-    rejectUnauthorized: false,
-  },
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
 });
 
 // ─────────────────────────────────────────────
@@ -25,7 +27,7 @@ const generateOTP = () => {
 };
 
 // ─────────────────────────────────────────────
-// SEND OTP
+// CREATE + SEND OTP
 // ─────────────────────────────────────────────
 const createAndSendOTP = async ({
   email,
@@ -44,7 +46,7 @@ const createAndSendOTP = async ({
     Date.now() + expiryMins * 60 * 1000
   );
 
-  // delete old OTP
+  // remove old OTP
   await Otp.deleteMany({
     email,
     purpose,
@@ -59,6 +61,9 @@ const createAndSendOTP = async ({
   });
 
   console.log('📩 OTP:', otp);
+
+  // verify smtp
+  await transporter.verify();
 
   // send mail
   await transporter.sendMail({
