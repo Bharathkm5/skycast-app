@@ -2,21 +2,17 @@ const nodemailer = require('nodemailer');
 const Otp = require('../models/Otp');
 
 // ─────────────────────────────────────────────
-// TRANSPORTER
+// GMAIL TRANSPORTER
 // ─────────────────────────────────────────────
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
+
+  service: 'gmail',
 
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
 });
 
 // ─────────────────────────────────────────────
@@ -35,69 +31,83 @@ const createAndSendOTP = async ({
   purpose = 'verify',
 }) => {
 
-  email = email.toLowerCase().trim();
+  try {
 
-  const otp = generateOTP();
+    email = email.toLowerCase().trim();
 
-  const expiryMins =
-    parseInt(process.env.OTP_EXPIRY_MINUTES) || 10;
+    const otp = generateOTP();
 
-  const expiresAt = new Date(
-    Date.now() + expiryMins * 60 * 1000
-  );
+    const expiryMins =
+      parseInt(process.env.OTP_EXPIRY_MINUTES) || 10;
 
-  // remove old OTP
-  await Otp.deleteMany({
-    email,
-    purpose,
-  });
+    const expiresAt = new Date(
+      Date.now() + expiryMins * 60 * 1000
+    );
 
-  // save new OTP
-  await Otp.create({
-    email,
-    otp,
-    purpose,
-    expiresAt,
-  });
+    // remove old otp
+    await Otp.deleteMany({
+      email,
+      purpose,
+    });
 
-  console.log('📩 OTP:', otp);
+    // save otp
+    await Otp.create({
+      email,
+      otp,
+      purpose,
+      expiresAt,
+    });
 
-  // verify smtp
-  await transporter.verify();
+    console.log('📩 OTP GENERATED:', otp);
 
-  // send mail
-  await transporter.sendMail({
-    from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_FROM_ADDR}>`,
+    // send email
+    const info = await transporter.sendMail({
 
-    to: email,
+      from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_FROM_ADDR}>`,
 
-    subject:
-      purpose === 'verify'
-        ? '🌤️ SkyCast Email Verification'
-        : '🔐 SkyCast Login OTP',
+      to: email,
 
-    html: `
-      <div style="font-family:Arial;padding:20px">
-        <h2>SkyCast OTP</h2>
+      subject:
+        purpose === 'verify'
+          ? '🌤️ SkyCast Email Verification OTP'
+          : '🔐 SkyCast Login OTP',
 
-        <p>Hello ${name || 'User'},</p>
+      html: `
+        <div style="font-family:Arial;padding:20px">
 
-        <p>Your OTP is:</p>
+          <h2>SkyCast OTP</h2>
 
-        <h1 style="letter-spacing:4px">
-          ${otp}
-        </h1>
+          <p>Hello ${name || 'User'},</p>
 
-        <p>
-          Expires in ${expiryMins} minutes.
-        </p>
-      </div>
-    `,
+          <p>Your OTP is:</p>
 
-    text: `Your OTP is ${otp}`,
-  });
+          <h1 style="letter-spacing:4px;color:#2563eb">
+            ${otp}
+          </h1>
 
-  return true;
+          <p>
+            Expires in ${expiryMins} minutes.
+          </p>
+
+        </div>
+      `,
+
+      text: `Your OTP is ${otp}`,
+
+    });
+
+    console.log('✅ Email sent:', info.messageId);
+
+    return true;
+
+  } catch (err) {
+
+    console.error('❌ EMAIL ERROR:', err);
+
+    throw new Error(
+      err.message || 'Failed to send OTP email'
+    );
+  }
 };
 
 module.exports = {
