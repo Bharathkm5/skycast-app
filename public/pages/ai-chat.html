@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+
+<title>SkyCast AI</title>
+
+<link rel="stylesheet" href="../css/global.css"/>
+
+<style>
+body{
+  background:#071120;
+  color:white;
+  font-family:Arial;
+  margin:0;
+}
+
+.chat-wrap{
+  width:100%;
+  max-width:900px;
+  margin:auto;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+.top{
+  padding:1rem;
+  border-bottom:1px solid rgba(255,255,255,.1);
+  font-size:1.4rem;
+  font-weight:bold;
+}
+
+.messages{
+  flex:1;
+  overflow:auto;
+  padding:1rem;
+}
+
+.msg{
+  padding:1rem;
+  border-radius:14px;
+  margin-bottom:1rem;
+  max-width:80%;
+  line-height:1.6;
+}
+
+.user{
+  background:#2563eb;
+  margin-left:auto;
+}
+
+.ai{
+  background:#1e293b;
+}
+
+.bottom{
+  padding:1rem;
+  border-top:1px solid rgba(255,255,255,.1);
+}
+
+.input-row{
+  display:flex;
+  gap:.75rem;
+}
+
+input{
+  flex:1;
+  padding:1rem;
+  border:none;
+  border-radius:12px;
+  background:#0f172a;
+  color:white;
+  font-size:1rem;
+}
+
+button{
+  padding:1rem 1.5rem;
+  border:none;
+  border-radius:12px;
+  background:#2563eb;
+  color:white;
+  cursor:pointer;
+}
+
+.quick{
+  display:flex;
+  gap:.5rem;
+  margin-top:.75rem;
+  flex-wrap:wrap;
+}
+
+.quick button{
+  background:#1e293b;
+  font-size:.85rem;
+}
+</style>
+</head>
+
+<body>
+
+<div class="chat-wrap">
+
+  <div class="top">
+    🌤️ SkyCast AI Assistant
+  </div>
+
+  <div class="messages" id="messages">
+
+    <div class="msg ai">
+      Hello 👋<br><br>
+      Ask me anything about weather, travel, rain,
+      bike ride safety, climate, storms and more.
+    </div>
+
+  </div>
+
+  <div class="bottom">
+
+    <div class="input-row">
+
+      <input
+        id="chat-input"
+        placeholder="Ask anything..."
+      />
+
+      <button onclick="sendMessage()">
+        Send
+      </button>
+
+    </div>
+
+    <div class="quick">
+
+      <button onclick="quickAsk('Can I go outside today?')">
+        Go Outside?
+      </button>
+
+      <button onclick="quickAsk('Can I ride bike today?')">
+        Bike Ride?
+      </button>
+
+      <button onclick="quickAsk('Will it rain today?')">
+        Rain Today?
+      </button>
+
+      <button onclick="quickAsk('Weather summary today')">
+        Weather Summary
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script src="../js/config.js"></script>
+
+<script>
+function addMessage(text,type){
+
+  const div=document.createElement('div');
+
+  div.className='msg '+type;
+
+  div.innerHTML=text.replace(/\n/g,'<br>');
+
+  document
+    .getElementById('messages')
+    .appendChild(div);
+
+  div.scrollIntoView({
+    behavior:'smooth'
+  });
+}
+
+async function sendMessage(){
+
+  const input =
+    document.getElementById('chat-input');
+
+  const question =
+    input.value.trim();
+
+  if(!question) return;
+
+  addMessage(question,'user');
+
+  input.value='';
+
+  try{
+
+    const res = await fetch(
+      `${CONFIG.API_BASE}/api/ai/chat`,
+      {
+        method:'POST',
+
+        headers:{
+          'Content-Type':'application/json'
+        },
+
+        body:JSON.stringify({
+          city:'Bangalore',
+          question
+        })
+      }
+    );
+
+    const data = await res.json();
+
+    if(!res.ok){
+      throw new Error(
+        data.error || 'AI failed'
+      );
+    }
+
+    addMessage(data.reply,'ai');
+
+  }catch(err){
+
+    addMessage(
+      '❌ '+err.message,
+      'ai'
+    );
+  }
+}
+
+function quickAsk(q){
+
+  document
+    .getElementById('chat-input')
+    .value=q;
+
+  sendMessage();
+}
+
+document
+  .getElementById('chat-input')
+  .addEventListener(
+    'keydown',
+    e=>{
+      if(e.key==='Enter'){
+        sendMessage();
+      }
+    }
+  );
+</script>
+
+</body>
+</html>
