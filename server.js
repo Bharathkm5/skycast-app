@@ -196,3 +196,6 @@ async function seedAdmin() {
     );
   }
 }
+app.get('/pages/ai.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/pages/ai-chat.html'));
+});
