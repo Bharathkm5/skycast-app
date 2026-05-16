@@ -156,6 +156,7 @@ button{
 </div>
 
 <script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
 
 <script>
 
@@ -192,6 +193,12 @@ async function sendMessage(){
 
   try{
 
+    const weather =
+      await WeatherAPI.getCurrent(
+        CONFIG.DEFAULT_LAT,
+        CONFIG.DEFAULT_LON
+      );
+
     const res = await fetch(
       `${CONFIG.BACKEND_URL}/api/ai/chat`,
       {
@@ -202,8 +209,9 @@ async function sendMessage(){
         },
 
         body:JSON.stringify({
-          city:'Bangalore',
-          message: question
+          city: CONFIG.DEFAULT_CITY,
+          message: question,
+          weather
         })
       }
     );
