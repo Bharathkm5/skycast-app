@@ -65,3 +65,32 @@ const WeatherAPI = {
     return { label:'Very Hot', color:'#f87171' };
   },
 };
+const AIAPI = {
+  async chat(message, weather = null, city = '') {
+
+    const response = await fetch(
+      CONFIG.BACKEND_URL + "/api/ai/chat",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          message,
+          weather,
+          city
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "AI request failed");
+    }
+
+    return data;
+  }
+};
