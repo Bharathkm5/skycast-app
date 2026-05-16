@@ -11,7 +11,7 @@ const groq = new Groq({
 
 /* DETECT CITY */
 
-function extractCity(message){
+
 
   const lower =
     message.toLowerCase();
@@ -41,6 +41,75 @@ function extractCity(message){
 
     if(lower.includes(city)){
       return city;
+    }
+
+  }
+
+  return null;
+function extractCity(message){
+
+  const lower =
+    message.toLowerCase();
+
+  /* REMOVE SYMBOLS */
+
+  const cleaned =
+    lower.replace(/[^\w\s]/g,'');
+
+  /* SPLIT WORDS */
+
+  const words =
+    cleaned.split(/\s+/);
+
+  /* BIG CITY DATABASE */
+
+  const cities = [
+
+    'delhi',
+    'new delhi',
+    'mumbai',
+    'bangalore',
+    'bengaluru',
+    'chennai',
+    'kolkata',
+    'hyderabad',
+    'pune',
+    'mysore',
+    'hoskote',
+    'goa',
+    'jaipur',
+    'lucknow',
+    'surat',
+    'patna',
+    'kochi',
+    'noida',
+    'gurgaon',
+    'agra',
+    'shimla',
+    'manali'
+
+  ];
+
+  /* CHECK FULL MESSAGE */
+
+  for(const city of cities){
+
+    if(cleaned.includes(city)){
+      return city;
+    }
+
+  }
+
+  /* CHECK SINGLE WORDS */
+
+  for(const word of words){
+
+    for(const city of cities){
+
+      if(word === city){
+        return city;
+      }
+
     }
 
   }
