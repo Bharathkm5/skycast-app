@@ -9,59 +9,22 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
-/* DETECT CITY */
+/* =========================
+   DETECT CITY FROM MESSAGE
+========================= */
 
-
-
-  const lower =
-    message.toLowerCase();
-
-  const cities = [
-
-    'delhi',
-    'new delhi',
-    'mumbai',
-    'bangalore',
-    'bengaluru',
-    'chennai',
-    'kolkata',
-    'hyderabad',
-    'pune',
-    'mysore',
-    'hoskote',
-    'jaipur',
-    'surat',
-    'patna',
-    'lucknow',
-    'goa'
-
-  ];
-
-  for(const city of cities){
-
-    if(lower.includes(city)){
-      return city;
-    }
-
-  }
-
-  return null;
 function extractCity(message){
 
+  if(!message) return null;
+
   const lower =
     message.toLowerCase();
-
-  /* REMOVE SYMBOLS */
 
   const cleaned =
     lower.replace(/[^\w\s]/g,'');
 
-  /* SPLIT WORDS */
-
   const words =
     cleaned.split(/\s+/);
-
-  /* BIG CITY DATABASE */
 
   const cities = [
 
@@ -100,7 +63,7 @@ function extractCity(message){
 
   }
 
-  /* CHECK SINGLE WORDS */
+  /* CHECK WORDS */
 
   for(const word of words){
 
@@ -117,7 +80,9 @@ function extractCity(message){
   return null;
 }
 
-/* FETCH LIVE WEATHER */
+/* =========================
+   FETCH WEATHER BY CITY
+========================= */
 
 async function getWeatherByCity(city){
 
@@ -145,6 +110,10 @@ async function getWeatherByCity(city){
   }
 }
 
+/* =========================
+   AI CHAT ROUTE
+========================= */
+
 router.post('/chat', async (req, res) => {
 
   try {
@@ -166,12 +135,12 @@ router.post('/chat', async (req, res) => {
     let liveWeather = weather;
     let liveCity = city;
 
-    /* CHECK USER MESSAGE */
+    /* DETECT CITY */
 
     const detectedCity =
       extractCity(message);
 
-    /* FETCH CITY WEATHER */
+    /* FETCH LIVE WEATHER */
 
     if(detectedCity){
 
@@ -182,7 +151,8 @@ router.post('/chat', async (req, res) => {
 
       if(cityWeather){
 
-        liveWeather = cityWeather;
+        liveWeather =
+          cityWeather;
 
         liveCity =
           cityWeather.name;
@@ -190,6 +160,8 @@ router.post('/chat', async (req, res) => {
       }
 
     }
+
+    /* WEATHER TEXT */
 
     const weatherText = liveWeather
       ? `
@@ -214,6 +186,8 @@ ${liveWeather.wind?.speed} m/s
 `
       : 'No weather data available';
 
+    /* AI */
+
     const completion =
       await groq.chat.completions.create({
 
@@ -227,22 +201,24 @@ ${liveWeather.wind?.speed} m/s
             content: `
 You are SkyCast AI.
 
-You are an advanced weather assistant.
+You are an advanced live weather assistant.
 
-You ALWAYS use live weather data
+You ALWAYS use weather data
 provided by backend APIs.
+
+You answer naturally like a human.
 
 You can answer:
 
-- weather questions
-- rain forecasts
+- weather
+- rain chances
 - travel advice
 - bike ride safety
 - humidity
 - storms
-- heat alerts
-- clothing suggestions
 - outdoor safety
+- clothing suggestions
+- heat alerts
 
 Never say:
 - "I don't have access"
@@ -254,9 +230,9 @@ available weather data.
 
 Keep responses:
 - short
-- natural
 - accurate
-- helpful
+- friendly
+- human-like
 `
           },
 
