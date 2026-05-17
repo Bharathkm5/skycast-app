@@ -120,20 +120,260 @@
           <label class="toggle-sw"><input type="checkbox" id="tog-bg" onchange="savePref('dynamic_bg',this.checked)"/><span class="toggle-sl"></span></label></div>
       </div>
       <!-- About -->
-      <div class="sec" id="sec-about">
-        <div class="sec-title">ℹ️ About SkyCast</div>
-        <div style="display:flex;flex-direction:column;gap:.5rem;font-size:.875rem;color:var(--muted)">
-          <div>📦 Version <strong style="color:var(--text)">2.1.0</strong></div>
-          <div>🌐 Weather <strong style="color:var(--text)">OpenWeatherMap API</strong></div>
-          <div>🗄️ Database <strong style="color:var(--text)">MongoDB + Mongoose</strong></div>
-          <div>📧 Auth <strong style="color:var(--text)">Node.js + Nodemailer OTP</strong></div>
-          <div>🗺️ Maps <strong style="color:var(--text)">Leaflet.js</strong></div>
-          <div>⚡ Admin <strong style="color:var(--text)">5-page admin panel</strong></div>
-          <div>Backend: <span id="backend-status" style="color:var(--muted)">Checking…</span></div>
-        </div>
-        <div class="divider"></div>
-        <p style="font-size:.82rem;color:var(--muted)">All weather data is fetched live. Passwords are bcrypt-hashed (12 rounds). No plain text credentials are ever stored.</p>
+      <!-- About -->
+<div class="sec" id="sec-about">
+
+  <div class="sec-title">ℹ️ About SkyCast</div>
+
+  <!-- PROJECT INFO -->
+  <div style="
+    display:flex;
+    flex-direction:column;
+    gap:.6rem;
+    font-size:.875rem;
+    color:var(--muted);
+    margin-bottom:1.5rem
+  ">
+
+    <div>📦 Version <strong style="color:var(--text)">2.1.0</strong></div>
+
+    <div>🌐 Weather API
+      <strong style="color:var(--text)">
+        OpenWeatherMap API
+      </strong>
+    </div>
+
+    <div>🤖 AI Assistant
+      <strong style="color:var(--text)">
+        Groq AI (Llama 3.1)
+      </strong>
+    </div>
+
+    <div>🗄️ Database
+      <strong style="color:var(--text)">
+        MongoDB + Mongoose
+      </strong>
+    </div>
+
+    <div>📧 Authentication
+      <strong style="color:var(--text)">
+        Node.js + Nodemailer OTP
+      </strong>
+    </div>
+
+    <div>🔐 Security
+      <strong style="color:var(--text)">
+        JWT + bcrypt hashing
+      </strong>
+    </div>
+
+    <div>🗺️ Maps
+      <strong style="color:var(--text)">
+        Leaflet.js
+      </strong>
+    </div>
+
+    <div>⚡ Backend
+      <strong style="color:var(--text)">
+        Express.js REST API
+      </strong>
+    </div>
+
+    <div>☁️ Deployment
+      <strong style="color:var(--text)">
+        Render + MongoDB Atlas
+      </strong>
+    </div>
+
+    <div>📱 UI
+      <strong style="color:var(--text)">
+        Glassmorphism Responsive Design
+      </strong>
+    </div>
+
+    <div>
+      Backend Status:
+      <span id="backend-status" style="color:var(--muted)">
+        Checking…
+      </span>
+    </div>
+
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PROJECT DESCRIPTION -->
+  <div style="
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:14px;
+    padding:1rem;
+    margin-bottom:1.2rem
+  ">
+
+    <div style="
+      font-size:1rem;
+      font-weight:700;
+      margin-bottom:.6rem;
+      color:var(--text)
+    ">
+      🌤️ About The Project
+    </div>
+
+    <p style="
+      font-size:.82rem;
+      line-height:1.8;
+      color:var(--muted);
+      margin:0
+    ">
+      SkyCast is an advanced AI-powered weather platform built using
+      modern full-stack web technologies. The application provides
+      live weather forecasts, hourly predictions, air quality reports,
+      interactive weather maps, smart alerts, saved cities,
+      weather comparisons, and AI-generated weather insights.
+
+      The platform integrates Groq AI with Llama 3.1 models to
+      summarize weather conditions and generate intelligent weather
+      assistance in real time.
+    </p>
+
+  </div>
+
+  <!-- DEVELOPER CARD -->
+  <div style="
+    background:linear-gradient(
+      135deg,
+      rgba(56,189,248,.08),
+      rgba(139,92,246,.08)
+    );
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:16px;
+    padding:1.2rem;
+    margin-bottom:1rem
+  ">
+
+    <div style="
+      display:flex;
+      align-items:center;
+      gap:1rem;
+      margin-bottom:1rem
+    ">
+
+      <div style="
+        width:64px;
+        height:64px;
+        border-radius:50%;
+        background:linear-gradient(
+          135deg,
+          var(--accent),
+          var(--accent2)
+        );
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:1.5rem;
+        font-weight:800;
+        color:white
+      ">
+        BG
       </div>
+
+      <div>
+
+        <div style="
+          font-size:1.05rem;
+          font-weight:700;
+          color:var(--text)
+        ">
+          Bharath K M
+        </div>
+
+        <div style="
+          font-size:.8rem;
+          color:var(--accent)
+        ">
+          (Bharath Gowda)
+        </div>
+
+        <div style="
+          font-size:.75rem;
+          color:var(--muted);
+          margin-top:.2rem
+        ">
+          Full Stack Developer • UI Designer • AI Integration Developer
+        </div>
+
+      </div>
+
+    </div>
+
+    <div style="
+      display:flex;
+      flex-direction:column;
+      gap:.6rem;
+      font-size:.82rem;
+      color:var(--muted)
+    ">
+
+      <div>
+        👨‍💻 Developer of SkyCast weather platform and AI system
+      </div>
+
+      <div>
+        ⚙️ Built frontend, backend, authentication, admin panel,
+        AI assistant integration, APIs, and deployment pipeline
+      </div>
+
+      <div>
+        🤖 Integrated Groq AI using Llama 3.1 models for
+        smart weather conversations and summaries
+      </div>
+
+      <div>
+        📧 Contact:
+        <span style="color:var(--text)">
+          bharathkm.at@gmail.com
+        </span>
+      </div>
+
+      <div>
+        🌐 GitHub:
+        <a
+          href="https://github.com/"
+          target="_blank"
+          style="
+            color:var(--accent);
+            text-decoration:none
+          "
+        >
+          View Source Code
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- SECURITY -->
+  <div style="
+    background:rgba(34,197,94,.05);
+    border:1px solid rgba(34,197,94,.15);
+    border-radius:12px;
+    padding:1rem;
+    font-size:.8rem;
+    line-height:1.7;
+    color:var(--muted)
+  ">
+
+    🔒 All weather data is fetched live from APIs.
+    Passwords are securely hashed using bcrypt (12 rounds).
+    JWT authentication is used for secure sessions.
+    Sensitive keys are protected using environment variables.
+    No plain text passwords are stored anywhere in the system.
+
+  </div>
+
+</div>
       <!-- Danger -->
       <div class="danger-zone" id="sec-danger">
         <div class="sec-title" style="color:var(--danger)">⚠️ Danger Zone</div>
